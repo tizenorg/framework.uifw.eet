@@ -1,10 +1,18 @@
+eet (1.2.0+svn.49540slp2+2) unstable; urgency=low
+
+  * Packaging.
+  * Git: 165.213.180.234:/git/slp2.0/slp2.0-pkgs/EFL-pkgs/eet 
+  * Tag: eet_1.2.0+svn.49540slp2+2
+
+ -- Daniel Juyung Seo <juyung.seo@samsung.com>  Thu, 10 Jun 2010 20:39:03 +0900
+
 eet (1.2.0+svn.49540slp2+1) unstable; urgency=low
 
   * Packaging.
   * Git: 165.213.180.234:/git/slp2.0/slp2.0-pkgs/EFL-pkgs/eet 
   * Tag: eet_1.2.0+svn.49540slp2+1
 
- -- Daniel Juyung Seo <juyung.seo@samsung.net>  Thu, 10 Jun 2010 20:13:45 +0900
+ -- Daniel Juyung Seo <juyung.seo@samsung.com>  Thu, 10 Jun 2010 20:13:45 +0900
 
 eet (1.2.0+svn.49540slp2+0) unstable; urgency=low
 
@@ -12,7 +20,7 @@ eet (1.2.0+svn.49540slp2+0) unstable; urgency=low
   * SVN revision: 49540 (Total EFL revision: 49550)
   * Tag: 1.2.0+svn.49540slp2+0
 
- -- Daniel Juyung Seo <juyung.seo@smasung.net>  Thu, 10 Jun 2010 15:50:39 +0900
+ -- Daniel Juyung Seo <juyung.seo@samsung.com>  Thu, 10 Jun 2010 15:50:39 +0900
 
 eet (1.2.0+svn20100304slp2) unstable; urgency=low
 
