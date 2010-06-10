@@ -1,3 +1,11 @@
+eet (1.2.0+svn.49540slp2+0) unstable; urgency=low
+
+  * Update opensource EFL from SVN
+  * SVN revision: 49540 (Total EFL revision: 49550)
+  * Tag: 1.2.0+svn.49540slp2+0
+
+ -- Daniel Juyung Seo <juyung.seo@smasung.net>  Thu, 10 Jun 2010 15:50:39 +0900
+
 eet (1.2.0+svn20100304slp2) unstable; urgency=low
 
   * change package version
