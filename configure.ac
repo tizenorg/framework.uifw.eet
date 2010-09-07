@@ -1,12 +1,12 @@
-##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
+y##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 m4_define([v_maj], [1])
-m4_define([v_min], [3])
-m4_define([v_mic], [1])
-m4_define([v_rev], m4_esyscmd([(svnversion . | grep -v exported || echo 0) | awk -F : '{printf("%s\n", $1);}' | tr -d ' :MSP\n']))
+m4_define([v_min], [4])
+m4_define([v_mic], [0])
+m4_define([v_rev], m4_esyscmd([(svnversion "${SVN_REPO_PATH:-.}" | grep -v export || echo 0) | awk -F : '{printf("%s\n", $1);}' | tr -d ' :MSP\n']))
 m4_if(v_rev, [0], [m4_define([v_rev], m4_esyscmd([git log 2> /dev/null | (grep -m1 git-svn-id || echo 0) | sed -e 's/.*@\([0-9]*\).*/\1/' | tr -d '\n']))])
 ##--   When released, remove the dnl on the below line
-dnl m4_undefine([v_rev])
+m4_undefine([v_rev])
 ##--   When doing snapshots - change soname. remove dnl on below line
 dnl m4_define([relname], [ver-pre-svn-05])
 dnl m4_define([v_rel], [-release relname])
@@ -18,7 +18,7 @@ m4_define([lt_age], v_min)
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 
-AC_INIT([eet], [v_ver], [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([eet], [v_ver-alpha], [enlightenment-devel@lists.sourceforge.net])
 AC_PREREQ([2.52])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -49,24 +49,15 @@ AC_SUBST(version_info)
 AC_SUBST(release_info)
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
-
+VMAJ=v_maj
+AC_SUBST(VMAJ)
 
 ### Default options with respect to host
 
-case "$host_os" in
-   mingw*)
-      want_gnutls="no"
-      want_openssl="no"
-      want_cipher="no"
-      want_signature="no"
-      ;;
-   *)
-      want_gnutls="auto"
-      want_openssl="auto"
-      want_cipher="yes"
-      want_signature="yes"
-      ;;
-esac
+want_gnutls="auto"
+want_openssl="auto"
+want_cipher="yes"
+want_signature="yes"
 
 requirement_eet=""
 
@@ -262,12 +253,12 @@ AC_SUBST(EET_LIBS)
 
 # Eina library
 
-PKG_CHECK_MODULES(EINA, [eina-0])
-requirement_eet="eina-0 ${requirement_eet}"
+PKG_CHECK_MODULES(EINA, [eina >= 1.0.0])
+requirement_eet="eina >= 1.0.0 ${requirement_eet}"
 
 # Gnutls library
 have_gnutls="no"
-if test "x${want_gnutls}" = "xyes" -o "x${want_gnutls}" = "xauto" ; then
+if test "x${want_gnutls}" = "xyes" || test "x${want_gnutls}" = "xauto" ; then
    PKG_CHECK_MODULES(GNUTLS, [gnutls >= 1.7.6],
       [
        have_gnutls="yes"
@@ -287,7 +278,7 @@ fi
 
 # Openssl library
 have_openssl="no"
-if test "x${want_openssl}" = "xyes" -o "x${want_openssl}" = "xauto" ; then
+if test "x${want_openssl}" = "xyes" || test "x${want_openssl}" = "xauto" ; then
    PKG_CHECK_MODULES(OPENSSL, openssl,
       [
        have_openssl="yes"
@@ -297,11 +288,19 @@ if test "x${want_openssl}" = "xyes" -o "x${want_openssl}" = "xauto" ; then
       [have_openssl="no"])
 fi
 
+if test "x${have_gnutls}" = "xyes" ; then
+   secure_layer="GnuTLS"
+elif test "x${have_openssl}" = "xyes" ; then
+   secure_layer="OpenSSL"
+else
+   secure_layer="no"
+fi
+
 have_cipher="no"
-if test "x${have_gnutls}" = "xyes" -a "x${want_cipher}" = "xyes" ; then
+if test "x${have_gnutls}" = "xyes" && test "x${want_cipher}" = "xyes" ; then
    have_cipher="yes"
    AC_DEFINE(HAVE_CIPHER, 1, [Have cipher support built in eet])
-elif test "x${have_openssl}" = "xyes" -a "x${want_cipher}" = "xyes" ; then
+elif test "x${have_openssl}" = "xyes" && test "x${want_cipher}" = "xyes" ; then
    have_cipher="yes"
    AC_DEFINE(HAVE_CIPHER, 1, [Have cipher support built in eet])
 fi
@@ -310,10 +309,10 @@ AC_MSG_CHECKING(whether to activate cipher support in eet)
 AC_MSG_RESULT(${have_cipher})
 
 have_signature="no"
-if test "x${have_gnutls}" = "xyes" -a "x${want_signature}" = "xyes" ; then
+if test "x${have_gnutls}" = "xyes" && test "x${want_signature}" = "xyes" ; then
    have_signature="yes"
    AC_DEFINE(HAVE_SIGNATURE, 1, [Have signature support for eet file])
-elif test "x${have_openssl}" = "xyes" -a "x${want_signature}" = "xyes" ; then
+elif test "x${have_openssl}" = "xyes" && test "x${want_signature}" = "xyes" ; then
    have_signature="yes"
    AC_DEFINE(HAVE_SIGNATURE, 1, [Have signature support for eet file])
 fi
@@ -323,7 +322,18 @@ AC_MSG_RESULT(${have_signature})
 
 # pthread library
 
-EFL_CHECK_PTHREAD(["no"], [have_pthread="yes"], [have_pthread="no"])
+EFL_CHECK_THREADS(["no"],
+   [
+    if test "x${_efl_have_posix_threads}" = "xyes" ; then
+       have_threads="POSIX"
+    else
+       if test "x${_efl_have_win32_threads}" = "xyes" ; then
+          have_threads="Win32"
+       else
+          have_threads="no"
+       fi
+    fi],
+   [have_threads="no"])
 
 
 ### Checks for header files
@@ -457,11 +467,12 @@ echo
 echo "Configuration Options Summary:"
 echo
 echo "  Amalgamation.........: ${do_amalgamation}"
-echo "  Gnutls...............: ${have_gnutls}"
-echo "  Openssl..............: ${have_openssl}"
-echo "    Cipher support.....: ${have_cipher}"
-echo "    Signature..........: ${have_signature}"
-echo "  Thread Support.......: ${have_pthread}"
+echo "  Secure layer.........: ${secure_layer}"
+if test "x${have_gnutls}" = "xyes" || test "x${have_openssl}" = "xyes" ; then
+   echo "    Cipher support.....: ${have_cipher}"
+   echo "    Signature..........: ${have_signature}"
+fi
+echo "  Thread Support.......: ${have_threads}"
 echo
 echo "  Old eet file format..: ${old_eet_file_format}"
 echo
