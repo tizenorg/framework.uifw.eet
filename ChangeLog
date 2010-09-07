@@ -381,3 +381,48 @@
 
         * Release eet 1.3.0
 
+2010-06-27  Carsten Haitzler (The Rasterman)
+
+        * Release eet 1.3.2
+
+2010-06-29  Vincent Torri
+
+        * On Windows 64, long is of size 32 bits and not 64 bits. Also
+	LONG_BIT is not defined on Windows.
+
+2010-06-29  Cedric BAIL
+
+	* Add eet_alias support.
+	* Fix possible dead lock in eet_write_cipher.
+
+2010-07-08  Carsten Haitzler (The Rasterman)
+
+        * Moved Eet.h into $includedir/eet-MAJOR_VERSION/
+
+2010-07-15  Vincent Torri
+
+        * Add native Windows thread support instead of using pthread
+	(less overhead). On other OS, pthread is still used by default.
+	Pass --enable-win32-threads to activate thread support on
+	Windows.
+
+2010-07-20  Cedric BAIL
+
+	* Improve file change detection in eet_open by checking size also.
+
+2010-08-02  Cedric BAIL
+
+	* Fix bug in eet_connection code when running on 32bits machine.
+
+2010-08-06  Cedric BAIL
+
+	* Add EET_DATA_DESCRIPTOR_ADD_HASH_STRING.
+
+2010-08-06  Cedric BAIL
+
+	* Break eet_eina_* function helper to provide a clean API/ABI to
+	prevent futur break. This should prevent the ABI break that was
+	introduced with release 1.3.0.
+
+	* Add a specific allocator for array. This should fix wrong allocation
+	case discovered with recent edje file format change.
