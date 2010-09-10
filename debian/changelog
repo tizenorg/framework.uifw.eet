@@ -1,3 +1,11 @@
+eet (1.2.0+svn.51480slp2+build01) unstable; urgency=low
+
+  * efl 1.0 alpha upgradey
+  * Git: 165.213.180.234:/git/slp/pkgs/eet
+  * Tag: eet_1.2.0+svn.51480slp2+build01
+
+ -- Jaehwan.kim <jae.hwan.kim@samsung.com>  Tue, 31 Aug 2010 22:39:25 +0900
+
 eet (1.2.0+svn.49540slp2+3build04) unstable; urgency=low
 
   * Packaging.
