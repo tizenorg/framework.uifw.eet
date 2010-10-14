@@ -344,9 +344,10 @@ eet_cache_find(const char *path,
      {
         /* if matches real path - return it */
         if (eet_string_match(cache[i]->path, path))
+	  {
            if (!cache[i]->delete_me_now)
               return cache[i];
-
+	  }
      }
 
    /* not found */
@@ -634,6 +635,7 @@ eet_flush2(Eet_File *ef)
 
    /* write strings */
    if (ef->ed)
+     {
       for (j = 0; j < ef->ed->count; ++j)
         {
            if (ef->ed->all[j].str)
@@ -641,8 +643,12 @@ eet_flush2(Eet_File *ef)
                 if (fwrite(ef->ed->all[j].str, ef->ed->all[j].len, 1, fp) != 1)
                    goto write_error;
              }
-           else if (fwrite(ef->ed->all[j].mmap, ef->ed->all[j].len, 1, fp) != 1)
+	     else
+	       {
+		  if (fwrite(ef->ed->all[j].mmap, ef->ed->all[j].len, 1, fp) != 1)
               goto write_error;
+	       }
+	  }
         }
 
    /* write data */
@@ -699,7 +705,7 @@ write_error:
      }
 
 sign_error:
-   fclose(fp);
+   if (fp) fclose(fp);
    return error;
 } /* eet_flush2 */
 
@@ -2271,7 +2277,7 @@ eet_write_cipher(Eet_File   *ef,
         unsigned int data_ciphered_sz = 0;
         const void *tmp;
 
-        tmp = data2 ? data2 : data;
+        tmp = comp ? data2 : data;
         if (!eet_cipher(tmp, data_size, cipher_key, strlen(cipher_key),
                         &data_ciphered, &data_ciphered_sz))
           {
