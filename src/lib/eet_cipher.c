@@ -279,6 +279,10 @@ on_error:
       EVP_PKEY_free(pkey);
 
 # endif /* ifdef HAVE_GNUTLS */
+#else
+   certificate_file = NULL;
+   private_key_file = NULL;
+   cb = NULL;
 #endif /* ifdef HAVE_SIGNATURE */
    return NULL;
 } /* eet_identity_open */
@@ -298,6 +302,8 @@ eet_identity_close(Eet_Key *key)
    EVP_PKEY_free(key->private_key);
 # endif /* ifdef HAVE_GNUTLS */
    free(key);
+#else
+   key = NULL;
 #endif /* ifdef HAVE_SIGNATURE */
 } /* eet_identity_close */
 
@@ -419,6 +425,8 @@ on_error:
    X509_print_fp(out, key->certificate);
 # endif /* ifdef HAVE_GNUTLS */
 #else /* ifdef HAVE_SIGNATURE */
+   key = NULL;
+   out = NULL;
    ERR("You need to compile signature support in EET.");
 #endif /* ifdef HAVE_SIGNATURE */
 } /* eet_identity_print */
@@ -426,7 +434,7 @@ on_error:
 void
 eet_identity_ref(Eet_Key *key)
 {
-   if (key == NULL)
+   if (!key)
       return;
 
    key->references++;
@@ -435,7 +443,7 @@ eet_identity_ref(Eet_Key *key)
 void
 eet_identity_unref(Eet_Key *key)
 {
-   if (key == NULL)
+   if (!key)
       return;
 
    key->references--;
@@ -474,6 +482,9 @@ eet_identity_compute_sha1(const void  *data_base,
 #  endif /* ifdef HAVE_OPENSSL */
 # endif /* ifdef HAVE_GNUTLS */
 #else /* ifdef HAVE_SIGNATURE */
+   data_base = NULL;
+   data_length = 0;
+   sha1_length = NULL;
    result = NULL;
 #endif /* ifdef HAVE_SIGNATURE */
 
@@ -573,7 +584,7 @@ eet_identity_sign(FILE    *fp,
 # else /* ifdef HAVE_GNUTLS */
    sign_len = EVP_PKEY_size(key->private_key);
    sign = malloc(sign_len);
-   if (sign == NULL)
+   if (!sign)
      {
         err = EET_ERROR_OUT_OF_MEMORY;
         goto on_error;
@@ -642,6 +653,8 @@ on_error:
    munmap(data, st_buf.st_size);
    return err;
 #else /* ifdef HAVE_SIGNATURE */
+   fp = NULL;
+   key = NULL;
    return EET_ERROR_NOT_IMPLEMENTED;
 #endif /* ifdef HAVE_SIGNATURE */
 } /* eet_identity_sign */
@@ -717,7 +730,7 @@ eet_identity_check(const void   *data_base,
    gcry_md_write(md, data_base, data_length);
 
    hash = gcry_md_read(md, GCRY_MD_SHA1);
-   if (hash == NULL)
+   if (!hash)
      {
         gcry_md_close(md);
         return NULL;
@@ -773,12 +786,12 @@ eet_identity_check(const void   *data_base,
    tmp = alloca(cert_len);
    memcpy((char *)tmp, cert_der, cert_len);
    x509 = d2i_X509(NULL, &tmp, cert_len);
-   if (x509 == NULL)
+   if (!x509)
       return NULL;
 
    /* Get public key - eay */
    pkey = X509_get_pubkey(x509);
-   if (pkey == NULL)
+   if (!pkey)
      {
         X509_free(x509);
         return NULL;
@@ -813,6 +826,15 @@ eet_identity_check(const void   *data_base,
 
    return cert_der;
 #else /* ifdef HAVE_SIGNATURE */
+   data_base = NULL;
+   data_length = 0;
+   sha1 = NULL;
+   sha1_length = NULL;
+   signature_base = NULL;
+   signature_length = 0;
+   raw_signature_base = NULL;
+   raw_signature_length = NULL;
+   x509_length = NULL;
    return NULL;
 #endif /* ifdef HAVE_SIGNATURE */
 } /* eet_identity_check */
@@ -864,7 +886,7 @@ on_error:
    tmp = alloca(der_length);
    memcpy((char *)tmp, certificate, der_length);
    x509 = d2i_X509(NULL, &tmp, der_length);
-   if (x509 == NULL)
+   if (!x509)
      {
         INF("Not a valid certificate.");
         return;
@@ -876,6 +898,9 @@ on_error:
    X509_free(x509);
 # endif /* ifdef HAVE_GNUTLS */
 #else /* ifdef HAVE_SIGNATURE */
+   certificate = NULL;
+   der_length = 0;
+   out = NULL;
    ERR("You need to compile signature support in EET.");
 #endif /* ifdef HAVE_SIGNATURE */
 } /* eet_identity_certificate_print */
@@ -1236,7 +1261,7 @@ eet_hmac_sha1(const void    *key,
    gcry_md_write(mdh, data, data_len);
 
    hash = gcry_md_read(mdh, GCRY_MD_SHA1);
-   if (hash == NULL)
+   if (!hash)
      {
         gcry_md_close(mdh);
         return 1;

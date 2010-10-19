@@ -55,8 +55,9 @@ struct jpeg_membuf_src
 {
    struct jpeg_source_mgr pub;
 
-   const unsigned char   *buf;
-   size_t                 len;
+   const unsigned char    *buf;
+   size_t                  len;
+   struct jpeg_membuf_src *self;
 };
 
 static void
@@ -91,7 +92,9 @@ _eet_jpeg_membuf_src_skip(j_decompress_ptr cinfo,
 static void
 _eet_jpeg_membuf_src_term(j_decompress_ptr cinfo)
 {
-   free(cinfo->src);
+   struct jpeg_membuf_src *src = ((struct jpeg_membuf_src *)cinfo->src)->self;
+   
+   free(src);
    cinfo->src = NULL;
 } /* _eet_jpeg_membuf_src_term */
 
@@ -102,10 +105,12 @@ eet_jpeg_membuf_src(j_decompress_ptr cinfo,
 {
    struct jpeg_membuf_src *src;
 
-   src = malloc(sizeof(*src));
+   src = calloc(1, sizeof(*src));
    if (!src)
       return -1;
 
+   src->self = src;
+   
    cinfo->src = &src->pub;
    src->buf = buf;
    src->len = len;
@@ -130,6 +135,7 @@ struct jpeg_membuf_dst
    unsigned char              *buf;
    size_t                      len;
    int                         failed;
+   struct jpeg_membuf_dst     *self;
 };
 
 static void
@@ -146,7 +152,7 @@ _eet_jpeg_membuf_dst_flush(j_compress_ptr cinfo)
    unsigned char *buf;
 
    if (dst->len >= 0x40000000 ||
-       (buf = realloc(dst->buf, dst->len * 2)) == NULL)
+       !(buf = realloc(dst->buf, dst->len * 2)))
      {
         dst->failed = 1;
         dst->pub.next_output_byte = dst->buf;
@@ -166,7 +172,7 @@ _eet_jpeg_membuf_dst_flush(j_compress_ptr cinfo)
 static void
 _eet_jpeg_membuf_dst_term(j_compress_ptr cinfo)
 {
-   struct jpeg_membuf_dst *dst = (struct jpeg_membuf_dst *)cinfo->dest;
+   struct jpeg_membuf_dst *dst = ((struct jpeg_membuf_dst *)cinfo->dest)->self;
 
    if (dst->failed)
      {
@@ -191,7 +197,7 @@ eet_jpeg_membuf_dst(j_compress_ptr cinfo,
 {
    struct jpeg_membuf_dst *dst;
 
-   dst = malloc(sizeof(*dst));
+   dst = calloc(1, sizeof(*dst));
    if (!dst)
       return -1;
 
@@ -202,6 +208,7 @@ eet_jpeg_membuf_dst(j_compress_ptr cinfo,
         return -1;
      }
 
+   dst->self = dst;
    dst->len = 32768;
 
    cinfo->dest = &dst->pub;
@@ -1279,7 +1286,7 @@ eet_data_image_encode_cipher(const void  *data,
 
         /* eet_data_image_lossless_compressed_convert will refuse to compress something
            if the result is bigger than the entry. */
-        if (comp <= 0 || d == NULL)
+        if (comp <= 0 || !d)
            d = eet_data_image_lossless_convert(&size, data, w, h, alpha);
      }
    else
@@ -1563,7 +1570,8 @@ _eet_data_image_decode_inside(const void   *data,
                   Bytef *dtmp;
                   uLongf dlen = src_w * src_h * 4;
 
-                  /* FIXME: This could create a huge alloc. So compressed data and tile could not always work. */
+                  /* FIXME: This could create a huge alloc. So compressed 
+                   data and tile could not always work. */
                   dtmp = malloc(dlen);
                   if (!dtmp)
                      return 0;
