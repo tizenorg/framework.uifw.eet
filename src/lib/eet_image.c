@@ -55,8 +55,8 @@ struct jpeg_membuf_src
 {
    struct jpeg_source_mgr pub;
 
-   const unsigned char   *buf;
-   size_t                 len;
+   const unsigned char    *buf;
+   size_t                  len;
    struct jpeg_membuf_src *self;
 };
 

@@ -59,18 +59,18 @@ _eet_dictionary_lookup(Eet_Dictionary *ed,
      {
 	if (ed->all[current].len == len)
 	  {
-        if (ed->all[current].str)
+	     if (ed->all[current].str)
 	       if (strcmp(ed->all[current].str, string) == 0)
 		 {
 		    found = EINA_TRUE;
-              break;
+		    break;
 		 }
 
-        if (ed->all[current].mmap)
+	     if (ed->all[current].mmap)
 	       if (strcmp(ed->all[current].mmap, string) == 0)
 		 {
 		    found = EINA_TRUE;
-              break;
+		    break;
 		 }
 	  }
 
@@ -105,13 +105,12 @@ eet_dictionary_string_add(Eet_Dictionary *ed,
    if (idx != -1)
      {
         if (ed->all[idx].str)
-           if (strcmp(ed->all[idx].str, string) == 0)
-              return idx;
+	  if (strcmp(ed->all[idx].str, string) == 0)
+	    return idx;
 
         if (ed->all[idx].mmap)
-           if (strcmp(ed->all[idx].mmap, string) == 0)
-              return idx;
-
+	  if (strcmp(ed->all[idx].mmap, string) == 0)
+	    return idx;
      }
 
    if (ed->total == ed->count)
