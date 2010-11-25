@@ -440,3 +440,17 @@
 2010-09-02  Cedric BAIL
 
 	* Fix bug of ever growing dictionnary and improve strcmp comparison.
+
+2010-11-12  Cedric BAIL
+
+	* Don't try to read broken file when open in READ_WRITE mode.
+
+2010-11-14  Cedric BAIL
+
+	* Fix bug with cypher and compression used together.
+
+2010-11-21  Carsten Haitzler (The Rasterman)
+
+	* Fix another bug related to cipher and compression (leak and
+        bad free)
+

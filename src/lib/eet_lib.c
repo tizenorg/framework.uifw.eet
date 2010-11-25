@@ -1552,14 +1552,19 @@ eet_open(const char   *file,
           {
              fclose(fp);
              fp = NULL;
+
+             memset(&file_stat, 0, sizeof(file_stat));
+
              goto open_error;
           }
 
-        if ((mode == EET_FILE_MODE_READ) &&
-            (file_stat.st_size < ((int)sizeof(int) * 3)))
+        if (file_stat.st_size < ((int)sizeof(int) * 3))
           {
              fclose(fp);
              fp = NULL;
+
+             memset(&file_stat, 0, sizeof(file_stat));
+
              goto open_error;
           }
 
@@ -1797,15 +1802,21 @@ eet_read_cipher(Eet_File   *ef,
         unsigned int data_deciphered_sz = 0;
         /* if we already have the data in ram... copy that */
 
+        if (efn->ciphered && efn->size > size)
+          {
+             size = efn->size;
+             data = realloc(data, efn->size);
+          }
+
         if (efn->data)
-           memcpy(data, efn->data, efn->size);
+           memcpy(data, efn->data, size);
         else
-        if (!read_data_from_disk(ef, efn, data, size))
-           goto on_error;
+          if (!read_data_from_disk(ef, efn, data, size))
+            goto on_error;
 
         if (efn->ciphered && cipher_key)
           {
-             if (eet_decipher(data, size, cipher_key, strlen(cipher_key),
+             if (eet_decipher(data, efn->size, cipher_key, strlen(cipher_key),
                               &data_deciphered, &data_deciphered_sz))
                {
                   if (data_deciphered)
@@ -1822,7 +1833,7 @@ eet_read_cipher(Eet_File   *ef,
    /* compressed data */
    else
      {
-        void *tmp_data;
+        void *tmp_data = NULL;
         void *data_deciphered = NULL;
         unsigned int data_deciphered_sz = 0;
         int free_tmp = 0;
@@ -1862,7 +1873,9 @@ eet_read_cipher(Eet_File   *ef,
                   goto on_error;
                }
 
-             free(tmp_data);
+             if (free_tmp)
+                free(tmp_data);
+             free_tmp = 1;
              tmp_data = data_deciphered;
              compr_size = data_deciphered_sz;
           }
@@ -1871,7 +1884,11 @@ eet_read_cipher(Eet_File   *ef,
         dlen = size;
         if (uncompress((Bytef *)data, &dlen,
                        tmp_data, (uLongf)compr_size))
-           goto on_error;
+          {
+             if (free_tmp)
+                free(tmp_data);
+             goto on_error;
+          }
 
         if (free_tmp)
            free(tmp_data);
@@ -2282,7 +2299,6 @@ eet_write_cipher(Eet_File   *ef,
 
              data2 = data_ciphered;
              data_size = data_ciphered_sz;
-             size = (data_size > size) ? data_size : size;
           }
         else
           {
