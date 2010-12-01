@@ -1,7 +1,7 @@
 Source: eet
 Section: libs
 Priority: optional
-Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>
+Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Jihoon Kim <jihoon48.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>
 Original-Maintainer: Debian Pkg-e Team <pkg-e-devel@lists.alioth.debian.org>
 Uploaders: Albin Tonnerre <albin.tonnerre@gmail.com>, Niv Sardi <xaiki@debian.org>,
  Jan Lübbe <jluebbe@debian.org>
