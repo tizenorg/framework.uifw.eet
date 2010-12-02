@@ -3,7 +3,7 @@ Section: libs
 Priority: optional
 Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Jihoon Kim <jihoon48.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>
 Original-Maintainer: Debian Pkg-e Team <pkg-e-devel@lists.alioth.debian.org>
-Uploaders: Albin Tonnerre <albin.tonnerre@gmail.com>, Niv Sardi <xaiki@debian.org>,
+Uploaders: Albin Tonnerre <albin.tonnerre@gmail.com>, Niv Sardi <xaiki@debian.org>, Myoungwoon Kim <myoungwoon.kim@samsung.com>,
  Jan Lübbe <jluebbe@debian.org>
 Build-Depends: dpkg-dev , debhelper (>= 6), cdbs, zlib1g-dev, libjpeg7-dev, pkg-config, libtool, libeina-dev, doxygen
 Standards-Version: 3.8.1
