@@ -454,3 +454,17 @@
 	* Fix another bug related to cipher and compression (leak and
         bad free)
 
+2010-11-25  Cedric BAIL
+
+	* Add EET_DATA_DESCRIPTOR_ADD_VAR_ARRAY_STRING.
+
+2010-11-26  Cedric BAIL
+
+	* Reduce memory used by Eet dictionary.
+
+2010-11-29  Cedric BAIL
+
+	* Improve speed of Eet_String users. It does impact all string
+	encoding/decoding, but even faster for stringshare encoding.
+
+	* Improve speed when decoding mostly array with eet_data_read.
