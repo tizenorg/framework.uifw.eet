@@ -1,3 +1,12 @@
+eet (1.2.0+svn.55070slp2+build03) unstable; urgency=low
+
+  * [SVN 55070 Merge]
+  * Update to SVN Revision 55070.
+  * Git: 165.213.180.234:/git/slp/pkgs/eet
+  * Tag: eet_1.2.0+svn.55070slp2+build03
+
+ -- Myoungwoon Kim <myoungwoon.kim@samsung.com>  Thu, 02 Dec 2010 14:12:02 +0900
+
 eet (1.2.0+svn.55070slp2+build02) unstable; urgency=low
 
   * Rollback to eet_1.2.0+svn.51480slp2+build03.
