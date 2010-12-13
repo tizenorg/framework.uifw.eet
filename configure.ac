@@ -18,7 +18,7 @@ m4_define([lt_age], v_min)
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 
-AC_INIT([eet], [v_ver.beta2], [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([eet], [v_ver.beta3], [enlightenment-devel@lists.sourceforge.net])
 AC_PREREQ([2.52])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -347,7 +347,7 @@ AC_CHECK_HEADER([jpeglib.h],
    [AC_MSG_ERROR("Cannot find jpeglib.h. Make sure your CFLAGS environment variable contains include lines for the location of this file")])
 
 AC_CHECK_HEADERS(netinet/in.h)
-
+EFL_CHECK_PATH_MAX
 
 ### Checks for types
 
@@ -366,10 +366,11 @@ AC_C___ATTRIBUTE__
 AC_TRY_RUN(
    [
 #include <stdlib.h>
+#include <inttypes.h>
 int main (int argc, char **argv) {
   void *foo = NULL;
-  int bar = (int)foo;
-  return (int)foo;
+  uintptr_t bar = (uintptr_t)foo;
+  return (uintptr_t)foo;
 }
    ],
    [have_null="yes"],
@@ -414,20 +415,7 @@ case "$host_os" in
 esac
 AC_SUBST(lt_enable_auto_import)
 
-# use --as-needed if supported
-
-LDFLAGS_SAVE=${LDFLAGS}
-LDFLAGS="${LDFLAGS} -Wl,--as-needed"
-
-AC_LINK_IFELSE(
-   [AC_LANG_PROGRAM([[]], [])],
-   [ld_as_needed="-Wl,--as-needed"],
-   [ld_as_needed=""]
-)
-
-LDFLAGS=${LDFLAGS_SAVE}
-AC_SUBST(ld_as_needed)
-
+EFL_LINKER_FLAG([-Wl,--as-needed])
 
 ### Checks for library functions
 AC_FUNC_ALLOCA
