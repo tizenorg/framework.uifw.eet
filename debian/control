@@ -1,10 +1,9 @@
 Source: eet
 Section: libs
 Priority: optional
-Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>
+Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>, Myoungwoon Kim <myoungwoon.kim@samsung.com>
 Original-Maintainer: Debian Pkg-e Team <pkg-e-devel@lists.alioth.debian.org>
-Uploaders: Albin Tonnerre <albin.tonnerre@gmail.com>, Niv Sardi <xaiki@debian.org>, Myoungwoon Kim <myoungwoon.kim@samsung.com>,
- Jan Lübbe <jluebbe@debian.org>
+Uploaders: Albin Tonnerre <albin.tonnerre@gmail.com>, Niv Sardi <xaiki@debian.org>, Jan Lübbe <jluebbe@debian.org>
 Build-Depends: dpkg-dev , debhelper (>= 6), cdbs, zlib1g-dev, libjpeg7-dev, pkg-config, libtool, libeina-dev, doxygen
 Standards-Version: 3.8.1
 Homepage: http://www.enlightenment.org
