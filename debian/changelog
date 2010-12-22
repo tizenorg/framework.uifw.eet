@@ -1,3 +1,11 @@
+eet (1.2.0+svn.55490slp2+build01) unstable; urgency=low
+
+  * [SVN EFL Migration] eet in SLP is merged with SVN r55490
+  * Git: 165.213.180.234:slp/pkgs/e/eet
+  * Tag: eet_1.2.0+svn.55490slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Wed, 22 Dec 2010 19:54:50 +0900
+
 eet (1.2.0+svn.55432slp2+build01) unstable; urgency=low
 
   * [SVN's EFL Migration] eet in SLP is merged with SVN r55432.
