@@ -1725,12 +1725,11 @@ EAPI Eet_Error
 eet_identity_set(Eet_File *ef,
                  Eet_Key  *key)
 {
-   Eet_Key *tmp;
+   Eet_Key *tmp = ef->key;
 
    if (!ef)
       return EET_ERROR_BAD_OBJECT;
 
-   tmp = ef->key;
    ef->key = key;
    eet_identity_ref(ef->key);
    eet_identity_unref(tmp);

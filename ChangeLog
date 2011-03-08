@@ -478,16 +478,3 @@
 	* Move raw function pointer defs to typedefs in public API for
         readability improvements.
 
-2011-01-29  Carsten Haitzler (The Rasterman)
-
-	 * 1.4.0 release
-
-2011-01-29  Vincent Torri
-
-	* Use eina_stringshare_add() instead of strdup() on mmaped file names
-	on Windows. This fix eet shut down on Windows.
-
-2011-02-14  Cedric BAIL
-
-	* Improve Eet_Data to make decoding of EET_G_UNION and EET_G_*ARRAY
-	faster and less memory heavy.
