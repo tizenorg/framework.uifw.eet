@@ -1,3 +1,11 @@
+eet (1.2.0+svn.57844slp2+build02) unstable; urgency=low
+
+  * Rollback
+  * Git: slp-scm.sec.samsung.net:slp/pkgs/e/eet
+  * Tag: eet_1.2.0+svn.57844slp2+build02
+
+ -- Shinwoo Kim <cinoo.kim@samsung.com>  Tue, 29 Mar 2011 23:30:25 +0900
+
 eet (1.2.0+svn.57844slp2+build01) unstable; urgency=low
 
   * [SVN EFL Migration] eet in SLP is merged with SVN r57844
