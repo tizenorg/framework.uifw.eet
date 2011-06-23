@@ -11,13 +11,16 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#ifdef EFL_HAVE_POSIX_THREADS
+#include <Eina.h>
+
+#ifdef EINA_HAVE_THREADS
+#if ((!defined(_WIN32_WCE)) && (!defined(_WIN32)))
 # include <pthread.h>
-#endif /* ifdef EFL_HAVE_POSIX_THREADS */
+# define _EET_INCLUDED_PTHREAD
+#endif
+#endif /* ifdef EINA_HAVE_THREADS */
 
 #include <check.h>
-
-#include <Eina.h>
 
 #include "eet_suite.h"
 
@@ -1015,6 +1018,12 @@ START_TEST(eet_file_data_test)
 
    fail_if(!eet_data_write(ef, edd, EET_TEST_FILE_KEY1, &etbt, 0));
 
+   result = eet_data_read(ef, edd, EET_TEST_FILE_KEY1);
+   fail_if(!result);
+
+   /* Test the resulting data. */
+   fail_if(_eet_test_ex_check(result, 0) != 0);
+
    eet_close(ef);
 
    /* Read back the data. */
@@ -1200,6 +1209,8 @@ START_TEST(eet_image)
    int alpha;
    unsigned int w;
    unsigned int h;
+
+   eet_init();
 
    fail_if(!(file = tmpnam(file)));
 
@@ -1838,11 +1849,11 @@ START_TEST(eet_cipher_decipher_simple)
 
 END_TEST
 
-#ifdef EFL_HAVE_THREADS
+#ifdef EINA_HAVE_THREADS
 
 static Eina_Bool open_worker_stop;
 
-# ifdef EFL_HAVE_POSIX_THREADS
+# ifdef _EET_INCLUDED_PTHREAD
 
 static void *
 open_close_worker(void * path)
@@ -1863,7 +1874,7 @@ open_close_worker(void * path)
    pthread_exit(NULL);
 } /* open_close_worker */
 
-# else /* ifdef EFL_HAVE_POSIX_THREADS */
+# else /* ifdef _EET_INCLUDED_PTHREAD */
 
 static unsigned int __stdcall
 open_close_worker(void * path)
@@ -1884,7 +1895,7 @@ open_close_worker(void * path)
    _endthreadex(0);
 } /* open_close_worker */
 
-# endif /* ifdef EFL_HAVE_POSIX_THREADS */
+# endif /* ifdef _EET_INCLUDED_PTHREAD */
 
 START_TEST(eet_cache_concurrency)
 {
@@ -1893,15 +1904,16 @@ START_TEST(eet_cache_concurrency)
    Eet_File * ef;
    void * thread_ret;
    unsigned int n;
-# ifdef EFL_HAVE_POSIX_THREADS
+# ifdef _EET_INCLUDED_PTHREAD
    pthread_t thread;
-# else /* ifdef EFL_HAVE_POSIX_THREADS */
+# else /* ifdef _EET_INCLUDED_PTHREAD */
    uintptr_t thread;
    unsigned int thread_id;
    DWORD ret;
-# endif /* ifdef EFL_HAVE_POSIX_THREADS */
+# endif /* ifdef _EET_INCLUDED_PTHREAD */
 
    eet_init();
+   eina_threads_init();
 
    /* create a file to test with */
    fail_if(!(file = tmpnam(file)));
@@ -1911,11 +1923,11 @@ START_TEST(eet_cache_concurrency)
 
    /* start a thread that repeatedly opens and closes a file */
    open_worker_stop = 0;
-# ifdef EFL_HAVE_POSIX_THREADS
+# ifdef _EET_INCLUDED_PTHREAD
    pthread_create(&thread, NULL, open_close_worker, file);
-# else /* ifdef EFL_HAVE_POSIX_THREADS */
+# else /* ifdef _EET_INCLUDED_PTHREAD */
    thread = _beginthreadex(NULL, 0, open_close_worker, file, 0, &thread_id);
-# endif /* ifdef EFL_HAVE_POSIX_THREADS */
+# endif /* ifdef _EET_INCLUDED_PTHREAD */
    /* clear the cache repeatedly in this thread */
    for (n = 0; n < 50000; ++n)
      {
@@ -1924,22 +1936,24 @@ START_TEST(eet_cache_concurrency)
 
    /* join the other thread, and fail if it returned an error message */
    open_worker_stop = 1;
-# ifdef EFL_HAVE_POSIX_THREADS
+# ifdef _EET_INCLUDED_PTHREAD
    fail_if(pthread_join(thread, &thread_ret) != 0);
    fail_unless(thread_ret == NULL, (char const *)thread_ret);
-# else /* ifdef EFL_HAVE_POSIX_THREADS */
+# else /* ifdef _EET_INCLUDED_PTHREAD */
    ret = WaitForSingleObject((HANDLE)thread, INFINITE);
    fail_if(ret != WAIT_OBJECT_0);
    fail_if(GetExitCodeThread((HANDLE)thread, &ret) == FALSE);
    fail_if(ret != 0);
-# endif /* ifdef EFL_HAVE_POSIX_THREADS */
+# endif /* ifdef _EET_INCLUDED_PTHREAD */
 
    fail_if(unlink(file) != 0);
+
+   eina_threads_shutdown();
    eet_shutdown();
 }
 END_TEST
 
-#endif /* EFL_HAVE_THREADS */
+#endif /* EINA_HAVE_THREADS */
 
 typedef struct _Eet_Connection_Data   Eet_Connection_Data;
 struct _Eet_Connection_Data
@@ -2716,7 +2730,7 @@ eet_suite(void)
    suite_add_tcase(s, tc);
 #endif /* ifdef HAVE_CIPHER */
 
-#ifdef EFL_HAVE_THREADS
+#ifdef EINA_HAVE_THREADS
    tc = tcase_create("Eet Cache");
    tcase_add_test(tc, eet_cache_concurrency);
    suite_add_tcase(s, tc);

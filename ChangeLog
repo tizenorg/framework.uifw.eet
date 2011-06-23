@@ -491,3 +491,21 @@
 
 	* Improve Eet_Data to make decoding of EET_G_UNION and EET_G_*ARRAY
 	faster and less memory heavy.
+
+2011-05-14  Cedric BAIL
+
+	* Use Eina_Lock.
+	* Sync GNUTLS initialisation with Eina.
+
+2011-05-17  Cedric BAIL
+
+	* Use Eina_File.
+	* Fix test forgetting to initialize eet.
+
+2011-05-23  Vincent Torri
+
+	* Fix compilation with libjpeg 8 on Windows.
+
+2011-06-10  Cedric BAIL
+
+	* Add EET_DATA_DESCRIPTOR_ADD_LIST_STRING helper to define List of char *.

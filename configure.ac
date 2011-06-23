@@ -331,22 +331,6 @@ fi
 AC_MSG_CHECKING(whether to activate signature support in eet)
 AC_MSG_RESULT(${have_signature})
 
-# pthread library
-
-EFL_CHECK_THREADS(["no"],
-   [
-    if test "x${_efl_have_posix_threads}" = "xyes" ; then
-       have_threads="POSIX"
-    else
-       if test "x${_efl_have_win32_threads}" = "xyes" ; then
-          have_threads="Win32"
-       else
-          have_threads="no"
-       fi
-    fi],
-   [have_threads="no"])
-
-
 ### Checks for header files
 
 AC_CHECK_HEADER([zlib.h],
@@ -357,7 +341,7 @@ AC_CHECK_HEADER([jpeglib.h],
    [dummy="yes"],
    [AC_MSG_ERROR("Cannot find jpeglib.h. Make sure your CFLAGS environment variable contains include lines for the location of this file")])
 
-AC_CHECK_HEADERS(netinet/in.h)
+AC_CHECK_HEADERS(netinet/in.h unistd.h)
 EFL_CHECK_PATH_MAX
 
 ### Checks for types
@@ -443,6 +427,7 @@ AC_OUTPUT([
 Makefile
 eet.pc
 doc/Makefile
+doc/Doxyfile
 doc/eet.dox
 src/Makefile
 src/lib/Makefile
@@ -472,7 +457,6 @@ if test "x${have_gnutls}" = "xyes" || test "x${have_openssl}" = "xyes" ; then
    echo "    Cipher support.....: ${have_cipher}"
    echo "    Signature..........: ${have_signature}"
 fi
-echo "  Thread Support.......: ${have_threads}"
 echo
 echo "  Old eet file format..: ${old_eet_file_format}"
 echo
