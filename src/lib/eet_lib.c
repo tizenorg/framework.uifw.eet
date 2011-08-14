@@ -27,7 +27,6 @@ void *    alloca (size_t);
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 #include <time.h>
 #include <string.h>
 #include <fnmatch.h>
@@ -66,6 +65,11 @@ GCRY_THREAD_OPTION_PTHREAD_IMPL;
 
 #include "Eet.h"
 #include "Eet_private.h"
+
+
+#ifndef O_BINARY
+# define O_BINARY 0
+#endif
 
 static Eet_Version _version = { VMAJ, VMIN, VMIC, VREV };
 EAPI Eet_Version *eet_version = &_version;
@@ -475,7 +479,7 @@ eet_flush2(Eet_File *ef)
 
         /* opening for write - delete old copy of file right away */
         unlink(ef->path);
-        fd = open(ef->path, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
+        fd = open(ef->path, O_CREAT | O_TRUNC | O_RDWR | O_BINARY, S_IRUSR | S_IWUSR);
         fp = fdopen(fd, "wb");
         if (!fp)
            return EET_ERROR_NOT_WRITABLE;
@@ -561,7 +565,7 @@ eet_flush2(Eet_File *ef)
           }
      }
 
-   /* write dictionnary */
+   /* write dictionary */
    if (ef->ed)
      {
         int offset = strings_offset;
@@ -919,12 +923,12 @@ eet_internal_read2(Eet_File *ef)
         int hash;
         int flag;
 
-        /* out directory block is inconsistent - we have oveerun our */
+        /* out directory block is inconsistent - we have overrun our */
         /* dynamic block buffer before we finished scanning dir entries */
         efn = malloc(sizeof(Eet_File_Node));
         if (eet_test_close(!efn, ef))
           {
-             if (efn) free(efn); /* yes i know - we only get here if 
+             if (efn) free(efn); /* yes i know - we only get here if
                                   * efn is null/0 -> trying to shut up
                                   * warning tools like cppcheck */
              return NULL;
@@ -1179,7 +1183,7 @@ eet_internal_read1(Eet_File *ef)
 
 #define HEADER_SIZE (sizeof(int) * 5)
 
-        /* out directory block is inconsistent - we have oveerun our */
+        /* out directory block is inconsistent - we have overrun our */
         /* dynamic block buffer before we finished scanning dir entries */
         if (eet_test_close(p + HEADER_SIZE >= (dyn_buf + byte_entries), ef))
            return NULL;
@@ -1188,7 +1192,7 @@ eet_internal_read1(Eet_File *ef)
         efn = malloc (sizeof(Eet_File_Node));
         if (eet_test_close(!efn, ef))
           {
-             if (efn) free(efn); /* yes i know - we only get here if 
+             if (efn) free(efn); /* yes i know - we only get here if
                                   * efn is null/0 -> trying to shut up
                                   * warning tools like cppcheck */
              return NULL;
@@ -1977,6 +1981,83 @@ on_error:
    UNLOCK_FILE(ef);
    return NULL;
 } /* eet_read_direct */
+
+EAPI const char *
+eet_alias_get(Eet_File *ef,
+              const char *name)
+{
+   Eet_File_Node *efn;
+   const char *data = NULL;
+   int size = 0;
+
+   /* check to see its' an eet file pointer */
+   if (eet_check_pointer(ef))
+      return NULL;
+
+   if (!name)
+      return NULL;
+
+   if ((ef->mode != EET_FILE_MODE_READ) &&
+       (ef->mode != EET_FILE_MODE_READ_WRITE))
+      return NULL;
+
+   /* no header, return NULL */
+   if (eet_check_header(ef))
+      return NULL;
+
+   LOCK_FILE(ef);
+
+   /* hunt hash bucket */
+   efn = find_node_by_name(ef, name);
+   if (!efn)
+      goto on_error;
+
+   /* trick to detect data in memory instead of mmaped from disk */
+   if (efn->offset > ef->data_size && !efn->data)
+      goto on_error;
+
+   /* get size (uncompressed, if compressed at all) */
+   size = efn->data_size;
+
+   if (!efn->alias) return NULL;
+   data = efn->data ? efn->data : ef->data + efn->offset;
+
+   /* handle alias case */
+   if (efn->compression)
+     {
+        char *tmp;
+        int compr_size = efn->size;
+        uLongf dlen;
+
+        tmp = alloca(sizeof (compr_size));
+        dlen = size;
+
+        if (uncompress((Bytef *)tmp, &dlen, (Bytef *)data,
+                       (uLongf)compr_size))
+           goto on_error;
+
+        if (tmp[compr_size - 1] != '\0')
+           goto on_error;
+
+        UNLOCK_FILE(ef);
+
+        return eina_stringshare_add(tmp);
+     }
+
+   if (!data)
+      goto on_error;
+
+   if (data[size - 1] != '\0')
+      goto on_error;
+
+   UNLOCK_FILE(ef);
+
+   return eina_stringshare_add(data);
+
+on_error:
+   UNLOCK_FILE(ef);
+   return NULL;
+}
 
 EAPI Eina_Bool
 eet_alias(Eet_File   *ef,
