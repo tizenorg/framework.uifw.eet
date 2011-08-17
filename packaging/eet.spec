@@ -11,6 +11,7 @@ Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(eina)
 BuildRequires:  pkgconfig(gnutls)
 BuildRequires:  pkgconfig(openssl)
+BuildRequires:  pkgconfig(zlib)
 BuildRequires:  libjpeg-devel
 
 
@@ -66,24 +67,18 @@ rm -rf %{buildroot}
 %postun -p /sbin/ldconfig
 
 
-
-
-
-
-
-
 %files
 %defattr(-,root,root,-)
-%{_libdir}/libeet.so.*
+%{_libdir}/*.so.*
 
 
 %files devel
 %defattr(-,root,root,-)
-%{_includedir}/eet-1/Eet.h
-%{_libdir}/libeet.so
+%{_includedir}/*
+%{_libdir}/*.so
 %{_libdir}/pkgconfig/eet.pc
 
 %files bin
 %defattr(-,root,root,-)
-/usr/bin/eet
+/usr/bin/*
 
