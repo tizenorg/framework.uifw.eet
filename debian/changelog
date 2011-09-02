@@ -1,3 +1,13 @@
+eet (1.2.0+svn.62590slp2+build01) unstable; urgency=low
+
+  * [SVN EFL Migration] eet in SLP is merged with SVN r62590
+  * Important Changes
+       [Migration upstream r62590] Merge remote branch 'origin/upstream' into svn_merge
+  * Git: 165.213.180.234:slp/pkgs/e/eet
+  * Tag: eet_1.2.0+svn.62590slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Fri, 02 Sep 2011 18:41:10 +0900
+
 eet (1.2.0+svn.60246slp2+build01) unstable; urgency=low
 
   * [SVN EFL Migration] eet in SLP is merged with SVN r60246
