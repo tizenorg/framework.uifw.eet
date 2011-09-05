@@ -1,11 +1,12 @@
+#sbs-git:slp/pkgs/e/eet eet_1.2.0+svn.62590slp2+build01 4fae70dfc08b5d612985ac7b598c59ae92b040b0
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
 Version:    1.4.999.svn60246
 Release:    1
 Group:      TO_BE/FILLED_IN
-License:    TO BE FILLED IN
+License:    BSD
 URL:        http://www.enlightenment.org/
-Source0:    http://download.enlightenment.org/releases/eet-%{version}.tar.gz
+Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(eina)
@@ -44,7 +45,7 @@ Enlightenment DR17 file chunk reading/writing library  (bin)
 
 
 %prep
-%setup -q -n %{name}
+%setup -q
 
 
 %build
