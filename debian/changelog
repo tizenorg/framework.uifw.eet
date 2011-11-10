@@ -1,3 +1,9 @@
+eet (1.2.0+svn.64981slp2+build01) unstable; urgency=low
+
+  * Merge with upstream @64981
+
+ -- Mike McCormack <mj.mccormack@samsung.com>  Thu, 10 Nov 2011 11:29:43 +0900
+
 eet (1.2.0+svn.64494slp2+build01) unstable; urgency=low
 
   * Merge with upstream 64494
