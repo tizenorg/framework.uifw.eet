@@ -1,12 +1,12 @@
 y##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 m4_define([v_maj], [1])
-m4_define([v_min], [4])
-m4_define([v_mic], [999])
+m4_define([v_min], [5])
+m4_define([v_mic], [0])
 m4_define([v_rev], m4_esyscmd([(svnversion "${SVN_REPO_PATH:-.}" | grep -v export || echo 0) | awk -F : '{printf("%s\n", $1);}' | tr -d ' :MSP\n']))
 m4_if(v_rev, [0], [m4_define([v_rev], m4_esyscmd([git log 2> /dev/null | (grep -m1 git-svn-id || echo 0) | sed -e 's/.*@\([0-9]*\).*/\1/' | tr -d '\n']))])
 ##--   When released, remove the dnl on the below line
-dnl m4_undefine([v_rev])
+m4_undefine([v_rev])
 ##--   When doing snapshots - change soname. remove dnl on below line
 dnl m4_define([relname], [ver-pre-svn-05])
 dnl m4_define([v_rel], [-release relname])
@@ -243,7 +243,7 @@ EFL_CHECK_DOXYGEN([build_doc="yes"], [build_doc="no"])
 EFL_EET_BUILD=""
 case "$host_os" in
    mingw*)
-      PKG_CHECK_MODULES([EVIL], [evil])
+      PKG_CHECK_MODULES([EVIL], [evil >= 1.0.0])
       AC_DEFINE(HAVE_EVIL, 1, [Set to 1 if Evil library is installed])
       requirement_eet="evil ${requirement_eet}"
       EFL_EET_BUILD="-DEFL_EET_BUILD"
@@ -264,8 +264,8 @@ AC_SUBST(EET_LIBS)
 
 # Eina library
 
-PKG_CHECK_MODULES(EINA, [eina >= 1.0.0])
-requirement_eet="eina >= 1.0.0 ${requirement_eet}"
+PKG_CHECK_MODULES(EINA, [eina >= 1.1.0])
+requirement_eet="eina >= 1.1.0 ${requirement_eet}"
 
 # Gnutls library
 have_gnutls="no"
@@ -410,7 +410,14 @@ case "$host_os" in
 esac
 AC_SUBST(lt_enable_auto_import)
 
-EFL_LINKER_FLAG([-Wl,--as-needed])
+case "${host_os}" in
+   openbsd*)
+      ;;
+   *)
+      EFL_LINKER_FLAG([-Wl,--as-needed])
+      ;;
+esac
+
 
 ### Checks for library functions
 AC_ISC_POSIX
