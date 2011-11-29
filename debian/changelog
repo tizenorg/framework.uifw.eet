@@ -1,3 +1,11 @@
+eet (1.5.0+svn.65577slp2+build01) unstable; urgency=low
+
+  * Package Upload
+  * Git: slp-scm.sec.samsung.net:slp/pkgs/e/eet
+  * Tag: eet_1.5.0+svn.65577slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Tue, 29 Nov 2011 13:29:42 +0900
+
 eet (1.5.0+svn.65300slp2+build01) unstable; urgency=low
 
   * Merge with upstream @65300
