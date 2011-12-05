@@ -2,14 +2,14 @@ Source: eet
 Section: libs
 Priority: optional
 Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>, Myoungwoon Kim <myoungwoon.kim@samsung.com>, Mike McCormack <mj.mccormack@@samsung.com>
-Build-Depends: dpkg-dev , debhelper (>= 6), cdbs, zlib1g-dev, libjpeg-turbo-dev, pkg-config, libtool, libeina-dev, doxygen
+Build-Depends: dpkg-dev , debhelper (>= 6), cdbs, zlib1g-dev, libjpeg7-dev, pkg-config, libtool, libeina-dev, doxygen
 Standards-Version: 3.8.1
 Homepage: http://www.enlightenment.org
 
 Package: libeet-dev
 Section: libdevel
 Architecture: any
-Depends: libeet1 (= ${binary:Version}), libjpeg-turbo-dev, pkg-config
+Depends: libeet1 (= ${binary:Version}), libjpeg7-dev, pkg-config
 Recommends: libeet-doc
 Description: Enlightenment DR17 file chunk reading/writing library development files
  Eet is a tiny library designed to write an arbitary set of chunks of data to a
