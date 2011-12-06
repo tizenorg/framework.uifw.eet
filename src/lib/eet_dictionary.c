@@ -16,34 +16,33 @@ eet_dictionary_add(void)
 {
    Eet_Dictionary *new;
 
-   new = calloc(1, sizeof (Eet_Dictionary));
+   new = eet_dictionary_calloc(1);
    if (!new)
      return NULL;
 
    memset(new->hash, -1, sizeof (int) * 256);
 
    return new;
-} /* eet_dictionary_add */
+}
 
 void
 eet_dictionary_free(Eet_Dictionary *ed)
 {
-   if (ed)
-     {
-        int i;
+   int i;
 
-        for (i = 0; i < ed->count; ++i)
-          if (ed->all[i].allocated)
-            eina_stringshare_del(ed->all[i].str);
+   if (!ed) return;
 
-        if (ed->all)
-          free(ed->all);
+   for (i = 0; i < ed->count; ++i)
+     if (ed->all[i].allocated)
+       eina_stringshare_del(ed->all[i].str);
 
-        if (ed->converts) eina_hash_free(ed->converts);
+   if (ed->all)
+     free(ed->all);
 
-        free(ed);
-     }
-} /* eet_dictionary_free */
+   if (ed->converts) eina_hash_free(ed->converts);
+
+   eet_dictionary_mp_free(ed);
+}
 
 static int
 _eet_dictionary_lookup(Eet_Dictionary *ed,
@@ -77,7 +76,7 @@ _eet_dictionary_lookup(Eet_Dictionary *ed,
      return prev;
 
    return current;
-} /* _eet_dictionary_lookup */
+}
 
 int
 eet_dictionary_string_add(Eet_Dictionary *ed,
@@ -110,7 +109,7 @@ eet_dictionary_string_add(Eet_Dictionary *ed,
 
         total = ed->total + 8;
 
-        new = realloc(ed->all, sizeof (Eet_String) * total);
+        new = realloc(ed->all, total * sizeof(Eet_String));
         if (!new)
           return -1;
 
@@ -152,7 +151,7 @@ eet_dictionary_string_add(Eet_Dictionary *ed,
      }
 
    return ed->count++;
-} /* eet_dictionary_string_add */
+}
 
 int
 eet_dictionary_string_get_size(const Eet_Dictionary *ed,
@@ -168,7 +167,7 @@ eet_dictionary_string_get_size(const Eet_Dictionary *ed,
      return ed->all[idx].len;
 
    return 0;
-} /* eet_dictionary_string_get_size */
+}
 
 int
 eet_dictionary_string_get_hash(const Eet_Dictionary *ed,
@@ -184,7 +183,7 @@ eet_dictionary_string_get_hash(const Eet_Dictionary *ed,
      return ed->all[idx].hash;
 
    return -1;
-} /* eet_dictionary_string_get_hash */
+}
 
 const char *
 eet_dictionary_string_get_char(const Eet_Dictionary *ed,
@@ -210,7 +209,7 @@ eet_dictionary_string_get_char(const Eet_Dictionary *ed,
      }
 
    return NULL;
-} /* eet_dictionary_string_get_char */
+}
 
 static inline Eina_Bool
 _eet_dictionary_string_get_me_cache(const char *s,
@@ -227,7 +226,7 @@ _eet_dictionary_string_get_me_cache(const char *s,
      }
 
    return EINA_FALSE;
-} /* _eet_dictionary_string_get_me_cache */
+}
 
 static inline Eina_Bool
 _eet_dictionary_string_get_float_cache(const char *s,
@@ -248,7 +247,7 @@ _eet_dictionary_string_get_float_cache(const char *s,
      }
 
    return EINA_FALSE;
-} /* _eet_dictionary_string_get_float_cache */
+}
 
 static inline Eina_Bool
 _eet_dictionary_string_get_double_cache(const char *s,
@@ -269,7 +268,7 @@ _eet_dictionary_string_get_double_cache(const char *s,
      }
 
    return EINA_FALSE;
-} /* _eet_dictionary_string_get_double_cache */
+}
 
 static inline Eina_Bool
 _eet_dictionary_test(const Eet_Dictionary *ed,
@@ -289,7 +288,7 @@ _eet_dictionary_test(const Eet_Dictionary *ed,
      return EINA_FALSE;
 
    return EINA_TRUE;
-} /* _eet_dictionary_test */
+}
 
 static Eet_Convert *
 eet_dictionary_convert_get(const Eet_Dictionary *ed,
@@ -351,7 +350,7 @@ eet_dictionary_string_get_float(const Eet_Dictionary *ed,
 
    *result = convert->f;
    return EINA_TRUE;
-} /* eet_dictionary_string_get_float */
+}
 
 Eina_Bool
 eet_dictionary_string_get_double(const Eet_Dictionary *ed,
@@ -387,7 +386,7 @@ eet_dictionary_string_get_double(const Eet_Dictionary *ed,
 
    *result = convert->d;
    return EINA_TRUE;
-} /* eet_dictionary_string_get_double */
+}
 
 Eina_Bool
 eet_dictionary_string_get_fp(const Eet_Dictionary *ed,
@@ -416,7 +415,7 @@ eet_dictionary_string_get_fp(const Eet_Dictionary *ed,
 
    *result = convert->fp;
    return EINA_TRUE;
-} /* eet_dictionary_string_get_fp */
+}
 
 EAPI int
 eet_dictionary_string_check(Eet_Dictionary *ed,
@@ -435,5 +434,5 @@ eet_dictionary_string_check(Eet_Dictionary *ed,
        return 1;
 
    return 0;
-} /* eet_dictionary_string_check */
+}
 
