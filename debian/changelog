@@ -1,3 +1,35 @@
+eet (1.5.0+svn.67705slp2+build01) unstable; urgency=low
+
+  * Package Upload
+  * Git: slp/pkgs/e/eet
+  * Tag: eet_1.5.0+svn.67705slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Wed, 15 Feb 2012 18:59:11 +0900
+
+eet (1.5.0+svn.66958slp2+build01) unstable; urgency=low
+
+  * Package Upload
+  * Git: slp/pkgs/e/eet
+  * Tag: eet_1.5.0+svn.66958slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Mon, 16 Jan 2012 18:28:56 +0900
+
+eet (1.5.0+svn.65860slp2+build02) unstable; urgency=low
+
+  * libjpeg7 -> libjpeg8
+  * Git: slp/pkgs/e/eet
+  * Tag: eet_1.5.0+svn.65860slp2+build02
+
+ -- ChunEon Park <chuneon.park@samsung.com>  Wed, 11 Jan 2012 14:08:18 +0900
+
+eet (1.5.0+svn.65860slp2+build01) unstable; urgency=low
+
+  * Package Upload for migration
+  * Git: slp-scm.sec.samsung.net:slp/pkgs/e/eet
+  * Tag: eet_1.5.0+svn.65860slp2+build01
+
+ -- Jaehwan Kim <jae.hwan.kim@samsung.com>  Thu, 08 Dec 2011 13:48:37 +0900
+
 eet (1.5.0+svn.65577slp2+build01) unstable; urgency=low
 
   * Package Upload

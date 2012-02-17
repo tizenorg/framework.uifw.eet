@@ -66,7 +66,7 @@ _eet_jpeg_membuf_src_init(j_decompress_ptr cinfo)
 {
    /* FIXME: Use attribute unused */
     (void)cinfo;
-} /* _eet_jpeg_membuf_src_init */
+}
 
 static boolean
 _eet_jpeg_membuf_src_fill(j_decompress_ptr cinfo)
@@ -78,7 +78,7 @@ _eet_jpeg_membuf_src_fill(j_decompress_ptr cinfo)
    src->pub.next_input_byte = jpeg_eoi;
 
    return TRUE;
-} /* _eet_jpeg_membuf_src_fill */
+}
 
 static void
 _eet_jpeg_membuf_src_skip(j_decompress_ptr cinfo,
@@ -88,7 +88,7 @@ _eet_jpeg_membuf_src_skip(j_decompress_ptr cinfo,
 
    src->pub.bytes_in_buffer -= num_bytes;
    src->pub.next_input_byte += num_bytes;
-} /* _eet_jpeg_membuf_src_skip */
+}
 
 static void
 _eet_jpeg_membuf_src_term(j_decompress_ptr cinfo)
@@ -97,7 +97,7 @@ _eet_jpeg_membuf_src_term(j_decompress_ptr cinfo)
 
    free(src);
    cinfo->src = NULL;
-} /* _eet_jpeg_membuf_src_term */
+}
 
 static int
 eet_jpeg_membuf_src(j_decompress_ptr cinfo,
@@ -124,7 +124,7 @@ eet_jpeg_membuf_src(j_decompress_ptr cinfo,
    src->pub.next_input_byte = src->buf;
 
    return 0;
-} /* eet_jpeg_membuf_src */
+}
 
 struct jpeg_membuf_dst
 {
@@ -144,7 +144,7 @@ _eet_jpeg_membuf_dst_init(j_compress_ptr cinfo)
 {
    /* FIXME: Use eina attribute */
     (void)cinfo;
-} /* _eet_jpeg_membuf_dst_init */
+}
 
 static boolean
 _eet_jpeg_membuf_dst_flush(j_compress_ptr cinfo)
@@ -168,7 +168,7 @@ _eet_jpeg_membuf_dst_flush(j_compress_ptr cinfo)
    dst->len *= 2;
 
    return FALSE;
-} /* _eet_jpeg_membuf_dst_flush */
+}
 
 static void
 _eet_jpeg_membuf_dst_term(j_compress_ptr cinfo)
@@ -189,7 +189,7 @@ _eet_jpeg_membuf_dst_term(j_compress_ptr cinfo)
 
    free(dst);
    cinfo->dest = NULL;
-} /* _eet_jpeg_membuf_dst_term */
+}
 
 static int
 eet_jpeg_membuf_dst(j_compress_ptr cinfo,
@@ -223,7 +223,7 @@ eet_jpeg_membuf_dst(j_compress_ptr cinfo,
    dst->failed = 0;
 
    return 0;
-} /* eet_jpeg_membuf_dst */
+}
 
 /*---*/
 
@@ -246,7 +246,7 @@ eet_data_image_jpeg_rgb_decode(const void   *data,
                                unsigned int  w,
                                unsigned int  h,
                                unsigned int  row_stride);
-static void *
+static int
 eet_data_image_jpeg_alpha_decode(const void   *data,
                                  int           size,
                                  unsigned int  src_x,
@@ -336,7 +336,7 @@ _JPEGFatalErrorHandler(j_common_ptr cinfo)
    /*   cinfo->err->output_message(cinfo);*/
    longjmp(errmgr->setjmp_buffer, 1);
    return;
-} /* _JPEGFatalErrorHandler */
+}
 
 static void
 _JPEGErrorHandler(j_common_ptr cinfo __UNUSED__)
@@ -347,7 +347,7 @@ _JPEGErrorHandler(j_common_ptr cinfo __UNUSED__)
     /*   cinfo->err->output_message(cinfo);*/
     /*   longjmp(errmgr->setjmp_buffer, 1);*/
        return;
-} /* _JPEGErrorHandler */
+}
 
 static void
 _JPEGErrorHandler2(j_common_ptr cinfo __UNUSED__,
@@ -359,7 +359,7 @@ _JPEGErrorHandler2(j_common_ptr cinfo __UNUSED__,
     /*   cinfo->err->output_message(cinfo);*/
     /*   longjmp(errmgr->setjmp_buffer, 1);*/
        return;
-} /* _JPEGErrorHandler2 */
+}
 
 static int
 eet_data_image_jpeg_header_decode(const void   *data,
@@ -405,7 +405,7 @@ eet_data_image_jpeg_header_decode(const void   *data,
      return 0;
 
    return 1;
-} /* eet_data_image_jpeg_header_decode */
+}
 
 static int
 eet_data_image_jpeg_rgb_decode(const void   *data,
@@ -558,9 +558,9 @@ eet_data_image_jpeg_rgb_decode(const void   *data,
    jpeg_finish_decompress(&cinfo);
    jpeg_destroy_decompress(&cinfo);
    return 1;
-} /* eet_data_image_jpeg_rgb_decode */
+}
 
-static void *
+static int
 eet_data_image_jpeg_alpha_decode(const void   *data,
                                  int           size,
                                  unsigned int  src_x,
@@ -577,6 +577,10 @@ eet_data_image_jpeg_alpha_decode(const void   *data,
    unsigned int x, y, l, scans;
    unsigned int i, iw;
 
+   /* FIXME: handle src_x, src_y and row_stride correctly */
+   if (!d)
+     return 0;
+
    memset(&cinfo, 0, sizeof (struct jpeg_decompress_struct));
 
    cinfo.err = jpeg_std_error(&(jerr.pub));
@@ -584,14 +588,14 @@ eet_data_image_jpeg_alpha_decode(const void   *data,
    jerr.pub.emit_message = _JPEGErrorHandler2;
    jerr.pub.output_message = _JPEGErrorHandler;
    if (setjmp(jerr.setjmp_buffer))
-     return NULL;
+     return 0;
 
    jpeg_create_decompress(&cinfo);
 
    if (eet_jpeg_membuf_src(&cinfo, data, (size_t)size))
      {
         jpeg_destroy_decompress(&cinfo);
-        return NULL;
+        return 0;
      }
 
    jpeg_read_header(&cinfo, TRUE);
@@ -609,7 +613,7 @@ eet_data_image_jpeg_alpha_decode(const void   *data,
         cinfo.src = NULL;
 
         jpeg_destroy_decompress(&cinfo);
-        return NULL;
+        return 0;
      }
 
    /* end head decoding */
@@ -620,11 +624,12 @@ eet_data_image_jpeg_alpha_decode(const void   *data,
         cinfo.src = NULL;
 
         jpeg_destroy_decompress(&cinfo);
-        return NULL;
+        return 0;
      }
 
    tdata = alloca(w * 16 * 3);
    ptr2 = d;
+
    if (cinfo.output_components == 1)
      {
         for (i = 0; i < (unsigned int)cinfo.rec_outbuf_height; i++)
@@ -666,8 +671,8 @@ eet_data_image_jpeg_alpha_decode(const void   *data,
    /* end data decoding */
    jpeg_finish_decompress(&cinfo);
    jpeg_destroy_decompress(&cinfo);
-   return d;
-} /* eet_data_image_jpeg_alpha_decode */
+   return 1;
+}
 
 static void *
 eet_data_image_lossless_convert(int         *size,
@@ -715,7 +720,7 @@ eet_data_image_lossless_convert(int         *size,
       *size = ((w * h * 4) + (8 * 4));
       return d;
    }
-} /* eet_data_image_lossless_convert */
+}
 
 static void *
 eet_data_image_lossless_compressed_convert(int         *size,
@@ -789,7 +794,7 @@ eet_data_image_lossless_compressed_convert(int         *size,
       free(comp);
       return d;
    }
-} /* eet_data_image_lossless_compressed_convert */
+}
 
 static void *
 eet_data_image_jpeg_convert(int         *size,
@@ -872,7 +877,7 @@ eet_data_image_jpeg_convert(int         *size,
 
    *size = sz;
    return d;
-} /* eet_data_image_jpeg_convert */
+}
 
 static void *
 eet_data_image_jpeg_alpha_convert(int         *size,
@@ -1063,7 +1068,7 @@ eet_data_image_jpeg_alpha_convert(int         *size,
    free(d2);
    *size = 12 + sz1 + sz2;
    return d;
-} /* eet_data_image_jpeg_alpha_convert */
+}
 
 EAPI int
 eet_data_image_write_cipher(Eet_File    *ef,
@@ -1091,7 +1096,7 @@ eet_data_image_write_cipher(Eet_File    *ef,
      }
 
    return 0;
-} /* eet_data_image_write_cipher */
+}
 
 EAPI int
 eet_data_image_write(Eet_File    *ef,
@@ -1114,7 +1119,7 @@ eet_data_image_write(Eet_File    *ef,
                                       comp,
                                       quality,
                                       lossy);
-} /* eet_data_image_write */
+}
 
 EAPI void *
 eet_data_image_read_cipher(Eet_File     *ef,
@@ -1149,7 +1154,7 @@ eet_data_image_read_cipher(Eet_File     *ef,
      free(data);
 
    return d;
-} /* eet_data_image_read_cipher */
+}
 
 EAPI void *
 eet_data_image_read(Eet_File     *ef,
@@ -1163,7 +1168,7 @@ eet_data_image_read(Eet_File     *ef,
 {
    return eet_data_image_read_cipher(ef, name, NULL, w, h, alpha,
                                      comp, quality, lossy);
-} /* eet_data_image_read */
+}
 
 EAPI int
 eet_data_image_read_to_surface_cipher(Eet_File     *ef,
@@ -1204,7 +1209,7 @@ eet_data_image_read_to_surface_cipher(Eet_File     *ef,
      free(data);
 
    return res;
-} /* eet_data_image_read_to_surface_cipher */
+}
 
 EAPI int
 eet_data_image_read_to_surface(Eet_File     *ef,
@@ -1225,7 +1230,7 @@ eet_data_image_read_to_surface(Eet_File     *ef,
                                                 w, h, row_stride,
                                                 alpha, comp, quality,
                                                 lossy);
-} /* eet_data_image_read_to_surface */
+}
 
 EAPI int
 eet_data_image_header_read_cipher(Eet_File     *ef,
@@ -1260,7 +1265,7 @@ eet_data_image_header_read_cipher(Eet_File     *ef,
      free(data);
 
    return d;
-} /* eet_data_image_header_read_cipher */
+}
 
 EAPI int
 eet_data_image_header_read(Eet_File     *ef,
@@ -1275,7 +1280,7 @@ eet_data_image_header_read(Eet_File     *ef,
    return eet_data_image_header_read_cipher(ef, name, NULL,
                                             w, h, alpha,
                                             comp, quality, lossy);
-} /* eet_data_image_header_read */
+}
 
 EAPI void *
 eet_data_image_encode_cipher(const void  *data,
@@ -1333,7 +1338,7 @@ eet_data_image_encode_cipher(const void  *data,
      *size_ret = size;
 
    return d;
-} /* eet_data_image_encode_cipher */
+}
 
 EAPI void *
 eet_data_image_encode(const void  *data,
@@ -1347,7 +1352,7 @@ eet_data_image_encode(const void  *data,
 {
    return eet_data_image_encode_cipher(data, NULL, w, h, alpha,
                                        comp, quality, lossy, size_ret);
-} /* eet_data_image_encode */
+}
 
 EAPI int
 eet_data_image_header_decode_cipher(const void   *data,
@@ -1499,7 +1504,7 @@ eet_data_image_header_decode_cipher(const void   *data,
      }
 
    return 0;
-} /* eet_data_image_header_decode_cipher */
+}
 
 EAPI int
 eet_data_image_header_decode(const void   *data,
@@ -1520,7 +1525,7 @@ eet_data_image_header_decode(const void   *data,
                                               comp,
                                               quality,
                                               lossy);
-} /* eet_data_image_header_decode */
+}
 
 static void
 _eet_data_image_copy_buffer(const unsigned int *src,
@@ -1544,7 +1549,7 @@ _eet_data_image_copy_buffer(const unsigned int *src,
         for (y = 0; y < h; ++y, src += src_w, over += row_stride)
           memcpy(over, src, w * 4);
      }
-} /* _eet_data_image_copy_buffer */
+}
 
 static int
 _eet_data_image_decode_inside(const void   *data,
@@ -1647,7 +1652,7 @@ _eet_data_image_decode_inside(const void   *data,
      abort();
 
    return 1;
-} /* _eet_data_image_decode_inside */
+}
 
 EAPI void *
 eet_data_image_decode_cipher(const void   *data,
@@ -1714,7 +1719,7 @@ eet_data_image_decode_cipher(const void   *data,
      *lossy = ilossy;
 
    return d;
-} /* eet_data_image_decode_cipher */
+}
 
 EAPI void *
 eet_data_image_decode(const void   *data,
@@ -1728,7 +1733,7 @@ eet_data_image_decode(const void   *data,
 {
    return eet_data_image_decode_cipher(data, NULL, size, w, h,
                                        alpha, comp, quality, lossy);
-} /* eet_data_image_decode */
+}
 
 EAPI int
 eet_data_image_decode_to_surface_cipher(const void   *data,
@@ -1795,7 +1800,7 @@ eet_data_image_decode_to_surface_cipher(const void   *data,
      *lossy = ilossy;
 
    return 1;
-} /* eet_data_image_decode_to_surface_cipher */
+}
 
 EAPI int
 eet_data_image_decode_to_surface(const void   *data,
@@ -1816,5 +1821,5 @@ eet_data_image_decode_to_surface(const void   *data,
                                                   w, h, row_stride,
                                                   alpha, comp, quality,
                                                   lossy);
-} /* eet_data_image_decode_to_surface */
+}
 

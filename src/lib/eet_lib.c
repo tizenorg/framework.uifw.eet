@@ -82,126 +82,6 @@ EAPI Eet_Version *eet_version = &_version;
 
 #define EET_MAGIC_FILE2       0x1ee70f42
 
-typedef struct _Eet_File_Header    Eet_File_Header;
-typedef struct _Eet_File_Node      Eet_File_Node;
-typedef struct _Eet_File_Directory Eet_File_Directory;
-
-struct _Eet_File
-{
-   char                *path;
-   Eina_File           *readfp;
-   Eet_File_Header     *header;
-   Eet_Dictionary      *ed;
-   Eet_Key             *key;
-   const unsigned char *data;
-   const void          *x509_der;
-   const void          *signature;
-   void                *sha1;
-
-   Eet_File_Mode        mode;
-
-   int                  magic;
-   int                  references;
-
-   unsigned long int    data_size;
-   int                  x509_length;
-   unsigned int         signature_length;
-   int                  sha1_length;
-
-   Eina_Lock            file_lock;
-
-   unsigned char        writes_pending : 1;
-   unsigned char        delete_me_now : 1;
-};
-
-struct _Eet_File_Header
-{
-   int                 magic;
-   Eet_File_Directory *directory;
-};
-
-struct _Eet_File_Directory
-{
-   int             size;
-   Eet_File_Node **nodes;
-};
-
-struct _Eet_File_Node
-{
-   char             *name;
-   void             *data;
-   Eet_File_Node    *next; /* FIXME: make buckets linked lists */
-
-   unsigned long int offset;
-   unsigned long int dictionary_offset;
-   unsigned long int name_offset;
-
-   unsigned int      name_size;
-   unsigned int      size;
-   unsigned int      data_size;
-
-   unsigned char     free_name : 1;
-   unsigned char     compression : 1;
-   unsigned char     ciphered : 1;
-   unsigned char     alias : 1;
-};
-
-#if 0
-/* Version 2 */
-/* NB: all int's are stored in network byte order on disk */
-/* file format: */
-int magic; /* magic number ie 0x1ee7ff00 */
-int num_directory_entries; /* number of directory entries to follow */
-int bytes_directory_entries; /* bytes of directory entries to follow */
-struct
-{
-   int  offset; /* bytes offset into file for data chunk */
-   int  flags; /* flags - for now 0 = uncompressed and clear, 1 = compressed and clear, 2 = uncompressed and ciphered, 3 = compressed and ciphered */
-   int  size; /* size of the data chunk */
-   int  data_size; /* size of the (uncompressed) data chunk */
-   int  name_size; /* length in bytes of the name field */
-   char name[name_size]; /* name string (variable length) and \0 terminated */
-} directory[num_directory_entries];
-/* and now startes the data stream... */
-#endif /* if 0 */
-
-#if 0
-/* Version 3 */
-/* NB: all int's are stored in network byte order on disk */
-/* file format: */
-int magic; /* magic number ie 0x1ee70f42 */
-int num_directory_entries; /* number of directory entries to follow */
-int num_dictionary_entries; /* number of dictionary entries to follow */
-struct
-{
-   int data_offset; /* bytes offset into file for data chunk */
-   int size; /* size of the data chunk */
-   int data_size; /* size of the (uncompressed) data chunk */
-   int name_offset; /* bytes offset into file for name string */
-   int name_size; /* length in bytes of the name field */
-   int flags; /* bit flags - for now:
-                 bit 0 => compresion on/off
-                 bit 1 => ciphered on/off
-                 bit 2 => alias
-               */
-} directory[num_directory_entries];
-struct
-{
-   int hash;
-   int offset;
-   int size;
-   int prev;
-   int next;
-} dictionary[num_dictionary_entries];
-/* now start the string stream. */
-/* and right after them the data stream. */
-int magic_sign; /* Optional, only if the eet file is signed. */
-int signature_length; /* Signature length. */
-int x509_length; /* Public certificate that signed the file. */
-char signature[signature_length]; /* The signature. */
-char x509[x509_length]; /* The public certificate. */
-#endif /* if 0 */
-
 #define EET_FILE2_HEADER_COUNT           3
 #define EET_FILE2_DIRECTORY_ENTRY_COUNT  6
 #define EET_FILE2_DICTIONARY_ENTRY_COUNT 5
@@ -280,7 +160,7 @@ eet_check_pointer(const Eet_File *ef)
      return 1;
 
    return 0;
-} /* eet_check_pointer */
+}
 
 static inline int
 eet_check_header(const Eet_File *ef)
@@ -292,7 +172,7 @@ eet_check_header(const Eet_File *ef)
      return 1;
 
    return 0;
-} /* eet_check_header */
+}
 
 static inline int
 eet_test_close(int       test,
@@ -305,7 +185,7 @@ eet_test_close(int       test,
      }
 
    return test;
-} /* eet_test_close */
+}
 
 /* find an eet file in the currently in use cache */
 static Eet_File *
@@ -326,7 +206,7 @@ eet_cache_find(const char *path,
 
    /* not found */
    return NULL;
-} /* eet_cache_find */
+}
 
 /* add to end of cache */
 /* this should only be called when the cache lock is already held */
@@ -382,7 +262,7 @@ eet_cache_add(Eet_File   *ef,
    *cache = new_cache;
    *cache_num = new_cache_num;
    *cache_alloc = new_cache_alloc;
-} /* eet_cache_add */
+}
 
 /* delete from cache */
 /* this should only be called when the cache lock is already held */
@@ -437,7 +317,7 @@ eet_cache_del(Eet_File   *ef,
    *cache = new_cache;
    *cache_num = new_cache_num;
    *cache_alloc = new_cache_alloc;
-} /* eet_cache_del */
+}
 
 /* internal string match. null friendly, catches same ptr */
 static int
@@ -452,7 +332,7 @@ eet_string_match(const char *s1,
       return 1;
 
     return !strcmp(s1, s2);
-} /* eet_string_match */
+}
 
 /* flush out writes to a v2 eet file */
 static Eet_Error
@@ -494,7 +374,7 @@ eet_flush2(Eet_File *ef)
         if (!fp)
           return EET_ERROR_NOT_WRITABLE;
 
-        fcntl(fileno(fp), F_SETFD, FD_CLOEXEC);
+        fcntl(fd, F_SETFD, FD_CLOEXEC);
      }
    else
      return EET_ERROR_NOT_WRITABLE;
@@ -627,14 +507,6 @@ eet_flush2(Eet_File *ef)
 
    /* flush all write to the file. */
    fflush(fp);
-// this is going to really cause trouble. if ANYTHING this needs to go into a
-// thread spawned off - but even then...
-// in this case... ext4 is "wrong". (yes we can jump up and down and point posix
-// manual pages at eachother, but ext4 broke behavior that has been in place
-// for decades and that 1000's of apps rely on daily - that is that one operation
-// to disk is committed to disk BEFORE following operations, so the fs retains
-// a consistent state
-//   fsync(fileno(fp));
 
    /* append signature if required */
    if (ef->key)
@@ -665,13 +537,13 @@ write_error:
            case EPIPE: error = EET_ERROR_WRITE_ERROR_FILE_CLOSED; break;
 
            default: error = EET_ERROR_WRITE_ERROR; break;
-          } /* switch */
+          }
      }
 
 sign_error:
    fclose(fp);
    return error;
-} /* eet_flush2 */
+}
 
 EAPI int
 eet_init(void)
@@ -680,10 +552,7 @@ eet_init(void)
      return eet_init_count;
 
    if (!eina_init())
-     {
-        fprintf(stderr, "Eet: Eina init failed");
-        return --eet_init_count;
-     }
+     return --eet_init_count;
 
    _eet_log_dom_global = eina_log_domain_register("eet", EET_DEFAULT_LOG_COLOR);
    if (_eet_log_dom_global < 0)
@@ -694,10 +563,16 @@ eet_init(void)
 
    eina_lock_new(&eet_cache_lock);
 
-   if (!eet_node_init())
+   if (!eet_mempool_init())
      {
         EINA_LOG_ERR("Eet: Eet_Node mempool creation failed");
         goto unregister_log_domain;
+     }
+
+   if (!eet_node_init())
+     {
+        EINA_LOG_ERR("Eet: Eet_Node mempool creation failed");
+        goto shutdown_mempool;
      }
 
 #ifdef HAVE_GNUTLS
@@ -741,13 +616,15 @@ eet_init(void)
 shutdown_eet:
 #endif
    eet_node_shutdown();
+shutdown_mempool:
+   eet_mempool_shutdown();
 unregister_log_domain:
    eina_log_domain_unregister(_eet_log_dom_global);
    _eet_log_dom_global = -1;
 shutdown_eina:
    eina_shutdown();
    return --eet_init_count;
-} /* eet_init */
+}
 
 EAPI int
 eet_shutdown(void)
@@ -757,6 +634,7 @@ eet_shutdown(void)
 
    eet_clearcache();
    eet_node_shutdown();
+   eet_mempool_shutdown();
 
    eina_lock_free(&eet_cache_lock);
 
@@ -772,7 +650,7 @@ eet_shutdown(void)
    eina_shutdown();
 
    return eet_init_count;
-} /* eet_shutdown */
+}
 
 EAPI Eet_Error
 eet_sync(Eet_File *ef)
@@ -795,7 +673,7 @@ eet_sync(Eet_File *ef)
 
    UNLOCK_FILE(ef);
    return ret;
-} /* eet_sync */
+}
 
 EAPI void
 eet_clearcache(void)
@@ -853,7 +731,7 @@ eet_clearcache(void)
      }
 
    UNLOCK_CACHE;
-} /* eet_clearcache */
+}
 
 /* FIXME: MMAP race condition in READ_WRITE_MODE */
 static Eet_File *
@@ -902,14 +780,14 @@ eet_internal_read2(Eet_File *ef)
      return NULL;
 
    /* allocate header */
-   ef->header = calloc(1, sizeof(Eet_File_Header));
+   ef->header = eet_file_header_calloc(1);
    if (eet_test_close(!ef->header, ef))
      return NULL;
 
    ef->header->magic = EET_MAGIC_FILE_HEADER;
 
    /* allocate directory block in ram */
-   ef->header->directory = calloc(1, sizeof(Eet_File_Directory));
+   ef->header->directory = eet_file_directory_calloc(1);
    if (eet_test_close(!ef->header->directory, ef))
      return NULL;
 
@@ -939,10 +817,10 @@ eet_internal_read2(Eet_File *ef)
 
         /* out directory block is inconsistent - we have overrun our */
         /* dynamic block buffer before we finished scanning dir entries */
-        efn = malloc(sizeof(Eet_File_Node));
+        efn = eet_file_node_malloc(1);
         if (eet_test_close(!efn, ef))
           {
-             if (efn) free(efn);  /* yes i know - we only get here if
+             if (efn) eet_file_node_mp_free(efn);  /* yes i know - we only get here if
                                    * efn is null/0 -> trying to shut up
                                    * warning tools like cppcheck */
              return NULL;
@@ -963,7 +841,7 @@ eet_internal_read2(Eet_File *ef)
 #define EFN_TEST(Test, Ef, Efn) \
   if (eet_test_close(Test, Ef)) \
     {                           \
-       free(Efn);               \
+       eet_file_node_mp_free(Efn);               \
        return NULL;             \
     }
 
@@ -1022,11 +900,11 @@ eet_internal_read2(Eet_File *ef)
                            ef))
           return NULL;
 
-        ef->ed = calloc(1, sizeof (Eet_Dictionary));
+        ef->ed = eet_dictionary_calloc(1);
         if (eet_test_close(!ef->ed, ef))
           return NULL;
 
-        ef->ed->all = calloc(num_dictionary_entries, sizeof (Eet_String));
+        ef->ed->all = calloc(1, num_dictionary_entries * sizeof(Eet_String));
         if (eet_test_close(!ef->ed->all, ef))
           return NULL;
 
@@ -1112,7 +990,7 @@ eet_internal_read2(Eet_File *ef)
      }
 
    return ef;
-} /* eet_internal_read2 */
+}
 
 #if EET_OLD_EET_FILE_FORMAT
 static Eet_File *
@@ -1162,14 +1040,14 @@ eet_internal_read1(Eet_File *ef)
      return NULL;
 
    /* allocate header */
-   ef->header = calloc(1, sizeof(Eet_File_Header));
+   ef->header = eet_file_header_calloc(1);
    if (eet_test_close(!ef->header, ef))
      return NULL;
 
    ef->header->magic = EET_MAGIC_FILE_HEADER;
 
    /* allocate directory block in ram */
-   ef->header->directory = calloc(1, sizeof(Eet_File_Directory));
+   ef->header->directory = eet_file_directory_calloc(1);
    if (eet_test_close(!ef->header->directory, ef))
      return NULL;
 
@@ -1204,10 +1082,10 @@ eet_internal_read1(Eet_File *ef)
           return NULL;
 
         /* allocate all the ram needed for this stored node accounting */
-        efn = malloc (sizeof(Eet_File_Node));
+        efn = eet_file_node_malloc(1);
         if (eet_test_close(!efn, ef))
           {
-             if (efn) free(efn);  /* yes i know - we only get here if
+             if (efn) eet_file_node_mp_free(efn);  /* yes i know - we only get here if
                                    * efn is null/0 -> trying to shut up
                                    * warning tools like cppcheck */
              return NULL;
@@ -1227,21 +1105,21 @@ eet_internal_read1(Eet_File *ef)
         /* invalid size */
         if (eet_test_close(efn->size <= 0, ef))
           {
-             free(efn);
+             eet_file_node_mp_free(efn);
              return NULL;
           }
 
         /* invalid name_size */
         if (eet_test_close(name_size <= 0, ef))
           {
-             free(efn);
+             eet_file_node_mp_free(efn);
              return NULL;
           }
 
         /* reading name would mean falling off end of dyn_buf - invalid */
         if (eet_test_close((p + 16 + name_size) > (dyn_buf + byte_entries), ef))
           {
-             free(efn);
+             eet_file_node_mp_free(efn);
              return NULL;
           }
 
@@ -1257,7 +1135,7 @@ eet_internal_read1(Eet_File *ef)
              efn->name = malloc(sizeof(char) * name_size + 1);
              if (eet_test_close(!efn->name, ef))
                {
-                  free(efn);
+                  eet_file_node_mp_free(efn);
                   return NULL;
                }
 
@@ -1294,7 +1172,7 @@ eet_internal_read1(Eet_File *ef)
         p += HEADER_SIZE + name_size;
      }
    return ef;
-} /* eet_internal_read1 */
+}
 
 #endif /* if EET_OLD_EET_FILE_FORMAT */
 
@@ -1329,10 +1207,10 @@ eet_internal_read(Eet_File *ef)
         ef->delete_me_now = 1;
         eet_internal_close(ef, EINA_TRUE);
         break;
-     } /* switch */
+     }
 
    return NULL;
-} /* eet_internal_read */
+}
 
 static Eet_Error
 eet_internal_close(Eet_File *ef,
@@ -1405,16 +1283,16 @@ eet_internal_close(Eet_File *ef,
                             if (efn->free_name)
                               free(efn->name);
 
-                            free(efn);
+                            eet_file_node_mp_free(efn);
                          }
                     }
                   free(ef->header->directory->nodes);
                }
 
-             free(ef->header->directory);
+             eet_file_directory_mp_free(ef->header->directory);
           }
 
-        free(ef->header);
+        eet_file_header_mp_free(ef->header);
      }
 
    eet_dictionary_free(ef->ed);
@@ -1434,7 +1312,8 @@ eet_internal_close(Eet_File *ef,
    memset(ef, 0, sizeof(Eet_File));
 
    /* free it */
-   free(ef);
+   eina_stringshare_del(ef->path);
+   eet_file_mp_free(ef);
    return err;
 
 on_error:
@@ -1442,7 +1321,7 @@ on_error:
      UNLOCK_CACHE;
 
    return EET_ERROR_NONE;
-} /* eet_internal_close */
+}
 
 EAPI Eet_File *
 eet_memopen_read(const void *data,
@@ -1453,7 +1332,7 @@ eet_memopen_read(const void *data,
    if (!data || size == 0)
      return NULL;
 
-   ef = malloc (sizeof (Eet_File));
+   ef = eet_file_malloc(1);
    if (!ef)
      return NULL;
 
@@ -1477,7 +1356,14 @@ eet_memopen_read(const void *data,
    ef = eet_internal_read(ef);
    UNLOCK_CACHE;
    return ef;
-} /* eet_memopen_read */
+}
+
+EAPI const char *
+eet_file_get(Eet_File *ef)
+{
+   if (eet_check_pointer(ef)) return NULL;
+   return ef->path;
+}
 
 EAPI Eet_File *
 eet_open(const char   *file,
@@ -1578,7 +1464,7 @@ open_error:
    file_len = strlen(file) + 1;
 
    /* Allocate struct for eet file and have it zero'd out */
-   ef = malloc(sizeof(Eet_File) + file_len);
+   ef = eet_file_malloc(1);
    if (!ef)
      goto on_error;
 
@@ -1586,8 +1472,7 @@ open_error:
    INIT_FILE(ef);
    ef->key = NULL;
    ef->readfp = fp;
-   ef->path = ((char *)ef) + sizeof(Eet_File);
-   memcpy(ef->path, file, file_len);
+   ef->path = eina_stringshare_add_length(file, file_len);
    ef->magic = EET_MAGIC_FILE;
    ef->references = 1;
    ef->mode = mode;
@@ -1641,7 +1526,7 @@ empty_file:
 on_error:
    UNLOCK_CACHE;
    return NULL;
-} /* eet_open */
+}
 
 EAPI Eet_File_Mode
 eet_mode_get(Eet_File *ef)
@@ -1651,7 +1536,7 @@ eet_mode_get(Eet_File *ef)
       return EET_FILE_MODE_INVALID;
     else
       return ef->mode;
-} /* eet_mode_get */
+}
 
 EAPI const void *
 eet_identity_x509(Eet_File *ef,
@@ -1664,7 +1549,7 @@ eet_identity_x509(Eet_File *ef,
      *der_length = ef->x509_length;
 
    return ef->x509_der;
-} /* eet_identity_x509 */
+}
 
 EAPI const void *
 eet_identity_signature(Eet_File *ef,
@@ -1677,7 +1562,7 @@ eet_identity_signature(Eet_File *ef,
      *signature_length = ef->signature_length;
 
    return ef->signature;
-} /* eet_identity_signature */
+}
 
 EAPI const void *
 eet_identity_sha1(Eet_File *ef,
@@ -1692,7 +1577,7 @@ eet_identity_sha1(Eet_File *ef,
      *sha1_length = ef->sha1_length;
 
    return ef->sha1;
-} /* eet_identity_sha1 */
+}
 
 EAPI Eet_Error
 eet_identity_set(Eet_File *ef,
@@ -1712,13 +1597,13 @@ eet_identity_set(Eet_File *ef,
    ef->writes_pending = 1;
 
    return EET_ERROR_NONE;
-} /* eet_identity_set */
+}
 
 EAPI Eet_Error
 eet_close(Eet_File *ef)
 {
    return eet_internal_close(ef, EINA_FALSE);
-} /* eet_close */
+}
 
 EAPI void *
 eet_read_cipher(Eet_File   *ef,
@@ -1889,7 +1774,7 @@ on_error:
    UNLOCK_FILE(ef);
    free(data);
    return NULL;
-} /* eet_read_cipher */
+}
 
 EAPI void *
 eet_read(Eet_File   *ef,
@@ -1897,7 +1782,7 @@ eet_read(Eet_File   *ef,
          int        *size_ret)
 {
    return eet_read_cipher(ef, name, size_ret, NULL);
-} /* eet_read */
+}
 
 EAPI const void *
 eet_read_direct(Eet_File   *ef,
@@ -1995,7 +1880,7 @@ eet_read_direct(Eet_File   *ef,
 on_error:
    UNLOCK_FILE(ef);
    return NULL;
-} /* eet_read_direct */
+}
 
 EAPI const char *
 eet_alias_get(Eet_File   *ef,
@@ -2102,16 +1987,16 @@ eet_alias(Eet_File   *ef,
    if (!ef->header)
      {
         /* allocate header */
-         ef->header = calloc(1, sizeof(Eet_File_Header));
+         ef->header = eet_file_header_calloc(1);
          if (!ef->header)
            goto on_error;
 
          ef->header->magic = EET_MAGIC_FILE_HEADER;
          /* allocate directory block in ram */
-         ef->header->directory = calloc(1, sizeof(Eet_File_Directory));
+         ef->header->directory = eet_file_directory_calloc(1);
          if (!ef->header->directory)
            {
-              free(ef->header);
+              eet_file_header_mp_free(ef->header);
               ef->header = NULL;
               goto on_error;
            }
@@ -2124,7 +2009,7 @@ eet_alias(Eet_File   *ef,
                   (1 << ef->header->directory->size));
          if (!ef->header->directory->nodes)
            {
-              free(ef->header->directory);
+              eet_file_directory_mp_free(ef->header->directory);
               ef->header = NULL;
               goto on_error;
            }
@@ -2198,7 +2083,7 @@ eet_alias(Eet_File   *ef,
      }
    if (!exists_already)
      {
-        efn = malloc(sizeof(Eet_File_Node));
+        efn = eet_file_node_malloc(1);
         if (!efn)
           {
              free(data2);
@@ -2230,7 +2115,7 @@ eet_alias(Eet_File   *ef,
 on_error:
    UNLOCK_FILE(ef);
    return EINA_FALSE;
-} /* eet_alias */
+}
 
 EAPI int
 eet_write_cipher(Eet_File   *ef,
@@ -2262,16 +2147,16 @@ eet_write_cipher(Eet_File   *ef,
    if (!ef->header)
      {
         /* allocate header */
-         ef->header = calloc(1, sizeof(Eet_File_Header));
+         ef->header = eet_file_header_calloc(1);
          if (!ef->header)
            goto on_error;
 
          ef->header->magic = EET_MAGIC_FILE_HEADER;
          /* allocate directory block in ram */
-         ef->header->directory = calloc(1, sizeof(Eet_File_Directory));
+         ef->header->directory = eet_file_directory_calloc(1);
          if (!ef->header->directory)
            {
-              free(ef->header);
+              eet_file_header_mp_free(ef->header);
               ef->header = NULL;
               goto on_error;
            }
@@ -2284,7 +2169,7 @@ eet_write_cipher(Eet_File   *ef,
                   (1 << ef->header->directory->size));
          if (!ef->header->directory->nodes)
            {
-              free(ef->header->directory);
+              eet_file_directory_mp_free(ef->header->directory);
               ef->header = NULL;
               goto on_error;
            }
@@ -2382,7 +2267,7 @@ eet_write_cipher(Eet_File   *ef,
      }
    if (!exists_already)
      {
-        efn = malloc(sizeof(Eet_File_Node));
+        efn = eet_file_node_malloc(1);
         if (!efn)
           {
              free(data2);
@@ -2413,7 +2298,7 @@ eet_write_cipher(Eet_File   *ef,
 on_error:
    UNLOCK_FILE(ef);
    return 0;
-} /* eet_write_cipher */
+}
 
 EAPI int
 eet_write(Eet_File   *ef,
@@ -2423,7 +2308,7 @@ eet_write(Eet_File   *ef,
           int         comp)
 {
    return eet_write_cipher(ef, name, data, size, comp, NULL);
-} /* eet_write */
+}
 
 EAPI int
 eet_delete(Eet_File   *ef,
@@ -2472,7 +2357,7 @@ eet_delete(Eet_File   *ef,
               if (efn->free_name)
                 free(efn->name);
 
-              free(efn);
+              eet_file_node_mp_free(efn);
               exists_already = 1;
               break;
            }
@@ -2485,7 +2370,7 @@ eet_delete(Eet_File   *ef,
 
    /* update access time */
    return exists_already;
-} /* eet_delete */
+}
 
 EAPI Eet_Dictionary *
 eet_dictionary_get(Eet_File *ef)
@@ -2494,7 +2379,7 @@ eet_dictionary_get(Eet_File *ef)
      return NULL;
 
    return ef->ed;
-} /* eet_dictionary_get */
+}
 
 EAPI char **
 eet_list(Eet_File   *ef,
@@ -2578,7 +2463,7 @@ on_error:
      *count_ret = 0;
 
    return NULL;
-} /* eet_list */
+}
 
 EAPI int
 eet_num_entries(Eet_File *ef)
@@ -2605,7 +2490,7 @@ eet_num_entries(Eet_File *ef)
    UNLOCK_FILE(ef);
 
    return ret;
-} /* eet_num_entries */
+}
 
 static Eet_File_Node *
 find_node_by_name(Eet_File   *ef,
@@ -2624,7 +2509,7 @@ find_node_by_name(Eet_File   *ef,
      }
 
    return NULL;
-} /* find_node_by_name */
+}
 
 static int
 read_data_from_disk(Eet_File      *ef,
@@ -2644,5 +2529,5 @@ read_data_from_disk(Eet_File      *ef,
    memcpy(buf, ef->data + efn->offset, len);
 
    return len;
-} /* read_data_from_disk */
+}
 

@@ -1,7 +1,7 @@
 Source: eet
 Section: libs
 Priority: optional
-Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>, Myoungwoon Kim <myoungwoon.kim@samsung.com>, Mike McCormack <mj.mccormack@@samsung.com>
+Maintainer: Jaehwan Kim <jae.hwan.kim@samsung.com>, Juyung Seo <juyung.seo@samsung.com>, Jeonghyun Yun <jh0506.yun@samsung.com>, Myoungwoon Kim <myoungwoon.kim@samsung.com>, Mike McCormack <mj.mccormack@@samsung.com>, ChunEon Park <chuneon.park@samsung.com>
 Build-Depends: dpkg-dev , debhelper (>= 6), cdbs, zlib1g-dev, libjpeg8-dev, pkg-config, libtool, libeina-dev, doxygen
 Standards-Version: 3.8.1
 Homepage: http://www.enlightenment.org

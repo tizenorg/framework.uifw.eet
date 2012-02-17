@@ -24,6 +24,8 @@
 
 #include "eet_suite.h"
 
+#define CERT_DIR ((*TESTS_SRC_DIR == '/') ? TESTS_SRC_DIR : "src/tests/" TESTS_SRC_DIR)
+
 START_TEST(eet_test_init)
 {
    int ret;
@@ -211,21 +213,21 @@ _eet_test_basic_check(Eet_Test_Basic_Type *result,
    fail_if(result->empty != NULL);
    if (i == 0)
      {
-        Eet_Test_Basic_Type *tmp;
+        Eet_Test_Basic_Type *tmp2;
 
-        tmp = result->with;
-        fail_if(tmp == NULL);
+        tmp2 = result->with;
+        fail_if(tmp2 == NULL);
 
-        fail_if(tmp->c != EET_TEST_CHAR);
-        fail_if(tmp->s != EET_TEST_SHORT);
-        fail_if(tmp->i != EET_TEST_INT + i + 1);
-        fail_if(tmp->l != (long long)EET_TEST_LONG_LONG);
-        fail_if(strcmp(tmp->str, EET_TEST_STRING) != 0);
-        fail_if(strcmp(tmp->istr, EET_TEST_STRING) != 0);
-        fail_if(tmp->uc != EET_TEST_CHAR);
-        fail_if(tmp->us != EET_TEST_SHORT);
-        fail_if(tmp->ui != EET_TEST_INT);
-        fail_if(tmp->ul != EET_TEST_LONG_LONG);
+        fail_if(tmp2->c != EET_TEST_CHAR);
+        fail_if(tmp2->s != EET_TEST_SHORT);
+        fail_if(tmp2->i != EET_TEST_INT + i + 1);
+        fail_if(tmp2->l != (long long)EET_TEST_LONG_LONG);
+        fail_if(strcmp(tmp2->str, EET_TEST_STRING) != 0);
+        fail_if(strcmp(tmp2->istr, EET_TEST_STRING) != 0);
+        fail_if(tmp2->uc != EET_TEST_CHAR);
+        fail_if(tmp2->us != EET_TEST_SHORT);
+        fail_if(tmp2->ui != EET_TEST_INT);
+        fail_if(tmp2->ul != EET_TEST_LONG_LONG);
      }
    else
      fail_if(result->with != NULL);
@@ -1640,7 +1642,7 @@ START_TEST(eet_identity_simple)
    eet_init();
 
    fail_if(!(file = tmpnam(file)));
-   fail_if(chdir("src/tests"));
+   fail_if(chdir(CERT_DIR));
    fail_if(!(noread = fopen("/dev/null", "w")));
 
    /* Sign an eet file. */
@@ -1707,7 +1709,7 @@ START_TEST(eet_identity_open_simple)
 
    eet_init();
 
-   fail_if(chdir("src/tests"));
+   fail_if(chdir(CERT_DIR));
 
    k = eet_identity_open("cert.pem", "key.pem", NULL);
    fail_if(!k);
@@ -1725,7 +1727,7 @@ START_TEST(eet_identity_open_pkcs8)
 
    eet_init();
 
-   fail_if(chdir("src/tests"));
+   fail_if(chdir(CERT_DIR));
 
    k = eet_identity_open("cert.pem", "key_enc_none.pem", NULL);
    fail_if(!k);
@@ -1774,7 +1776,7 @@ START_TEST(eet_identity_open_pkcs8_enc)
 
    eet_init();
 
-   fail_if(chdir("src/tests"));
+   fail_if(chdir(CERT_DIR));
 
    k = eet_identity_open("cert.pem", "key_enc.pem", NULL);
    fail_if(k);
@@ -1810,7 +1812,7 @@ START_TEST(eet_cipher_decipher_simple)
    eet_init();
 
    fail_if(!(file = tmpnam(file)));
-   fail_if(chdir("src/tests"));
+   fail_if(chdir(CERT_DIR));
 
    /* Crypt an eet file. */
    ef = eet_open(file, EET_FILE_MODE_WRITE);
@@ -1931,7 +1933,7 @@ START_TEST(eet_cache_concurrency)
    thread = _beginthreadex(NULL, 0, open_close_worker, file, 0, &thread_id);
 # endif /* ifdef _EET_INCLUDED_PTHREAD */
    /* clear the cache repeatedly in this thread */
-   for (n = 0; n < 50000; ++n)
+   for (n = 0; n < 20000; ++n)
      {
         eet_clearcache();
      }
