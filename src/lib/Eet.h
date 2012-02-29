@@ -577,7 +577,7 @@ EAPI Eet_File_Mode
 eet_mode_get(Eet_File *ef);
 
 /**
- * Close an eet file handle and flush and writes pending.
+ * Close an eet file handle and flush pending writes.
  * @param ef A valid eet file handle.
  *
  * This function will flush any pending writes to disk if the eet file
@@ -643,6 +643,17 @@ eet_dictionary_get(Eet_File *ef);
 EAPI int
 eet_dictionary_string_check(Eet_Dictionary *ed,
                             const char *string);
+
+/**
+ * Return the number of strings inside a dictionary
+ * @param ed A valid dictionary handle
+ * @return the number of strings inside a dictionary
+ *
+ * @since 1.6.0
+ * @ingroup Eet_File_Group
+ */
+EAPI int
+eet_dictionary_count(const Eet_Dictionary *ed);
 
 /**
  * Read a specified entry from an eet file and return data
