@@ -1,8 +1,8 @@
 #sbs-git:slp/pkgs/e/eet eet_1.2.0+svn.62590slp2+build01 4fae70dfc08b5d612985ac7b598c59ae92b040b0
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.4.999.svn60246
-Release:    1
+Version:    1.5.0+svn.67705slp2+build01
+Release:    2.1
 Group:      TO_BE/FILLED_IN
 License:    BSD
 URL:        http://www.enlightenment.org/
@@ -35,14 +35,23 @@ Requires:   %{name} = %{version}-%{release}
 %description devel
 Enlightenment DR17 file chunk reading/writing library  (devel)
 
-%package bin
-Summary:    Library for speedy data storage, retrieval, and compression. (bin)
+%package tools
+Summary:    Library for speedy data storage, retrieval, and compression. (tools)
+Group:      Development/Libraries
+Requires:   %{name} = %{version}-%{release}
+Provides:   %{name}-bin
+Obsoletes:  %{name}-bin
+
+%description tools
+Enlightenment DR17 file chunk reading/writing library  (tools)
+
+%package examples
+Summary:    Library for speedy data storage, retrieval, and compression. (tools)
 Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
 
-%description bin
-Enlightenment DR17 file chunk reading/writing library  (bin)
-
+%description examples
+Enlightenment DR17 file chunk reading/writing library  (tools)
 
 %prep
 %setup -q
@@ -69,17 +78,17 @@ rm -rf %{buildroot}
 
 
 %files
-%defattr(-,root,root,-)
 %{_libdir}/*.so.*
 
 
 %files devel
-%defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/eet.pc
 
-%files bin
-%defattr(-,root,root,-)
+%files tools
 /usr/bin/*
 
+
+%files examples
+/usr/share/eet/examples/*
