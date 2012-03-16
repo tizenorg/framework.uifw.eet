@@ -1,10 +1,9 @@
-#sbs-git:slp/pkgs/e/eet eet_1.2.0+svn.62590slp2+build01 4fae70dfc08b5d612985ac7b598c59ae92b040b0
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.4.999.svn60246
+Version:    1.5.0+svn.68718slp2+build01
 Release:    1
 Group:      TO_BE/FILLED_IN
-License:    BSD
+License:    TO_BE/FILLED_IN
 URL:        http://www.enlightenment.org/
 Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
@@ -26,22 +25,26 @@ Enlightenment DR17 file chunk reading/writing library development files Eet is a
  This package contains headers and static libraries for development with libeet.
 
 
-
 %package devel
 Summary:    Library for speedy data storage, retrieval, and compression (devel)
 Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
 
+
 %description devel
 Enlightenment DR17 file chunk reading/writing library  (devel)
 
-%package bin
-Summary:    Library for speedy data storage, retrieval, and compression. (bin)
+
+%package tools
+Summary:    Library for speedy data storage, retrieval, and compression. (tools)
 Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
+Provides:   %{name}-bin
+Obsoletes:  %{name}-bin
 
-%description bin
-Enlightenment DR17 file chunk reading/writing library  (bin)
+
+%description tools
+Enlightenment DR17 file chunk reading/writing library  (tools)
 
 
 %prep
@@ -49,6 +52,8 @@ Enlightenment DR17 file chunk reading/writing library  (bin)
 
 
 %build
+export CFLAGS+=" -fvisibility=hidden -fPIC"
+export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed"
 
 %autogen --disable-static
 %configure --disable-static \
@@ -56,21 +61,21 @@ Enlightenment DR17 file chunk reading/writing library  (bin)
 
 make %{?jobs:-j%jobs}
 
+
 %install
 rm -rf %{buildroot}
 %make_install
 
 
-
-
 %post -p /sbin/ldconfig
+
 
 %postun -p /sbin/ldconfig
 
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/*.so.*
+%{_libdir}/libeet.so.*
 
 
 %files devel
@@ -79,7 +84,15 @@ rm -rf %{buildroot}
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/eet.pc
 
-%files bin
+
+%files tools
 %defattr(-,root,root,-)
-/usr/bin/*
+%{_bindir}/*
+%{_datadir}/eet/examples/eet-basic.c
+%{_datadir}/eet/examples/eet-data-cipher_decipher.c
+%{_datadir}/eet/examples/eet-data-file_descriptor_01.c
+%{_datadir}/eet/examples/eet-data-file_descriptor_02.c
+%{_datadir}/eet/examples/eet-data-nested.c
+%{_datadir}/eet/examples/eet-data-simple.c
+%{_datadir}/eet/examples/eet-file.c
 
