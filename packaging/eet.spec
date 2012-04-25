@@ -1,6 +1,6 @@
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.6.0+svn.70375slp2+build01
+Version:    1.6.0+svn.70375slp2+build02
 Release:    1
 Group:      System/Libraries
 License:    BSD
