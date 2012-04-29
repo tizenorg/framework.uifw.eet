@@ -1,9 +1,8 @@
-#sbs-git:slp/pkgs/e/eet eet_1.2.0+svn.62590slp2+build01 4fae70dfc08b5d612985ac7b598c59ae92b040b0
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.5.0+svn.67705slp2+build01
-Release:    2.1
-Group:      TO_BE/FILLED_IN
+Version:    1.6.0+svn.69899slp2+build01
+Release:    1
+Group:      System/Libraries
 License:    BSD
 URL:        http://www.enlightenment.org/
 Source0:    %{name}-%{version}.tar.gz
@@ -26,14 +25,15 @@ Enlightenment DR17 file chunk reading/writing library development files Eet is a
  This package contains headers and static libraries for development with libeet.
 
 
-
 %package devel
 Summary:    Library for speedy data storage, retrieval, and compression (devel)
 Group:      Development/Libraries
 Requires:   %{name} = %{version}-%{release}
 
+
 %description devel
 Enlightenment DR17 file chunk reading/writing library  (devel)
+
 
 %package tools
 Summary:    Library for speedy data storage, retrieval, and compression. (tools)
@@ -42,22 +42,18 @@ Requires:   %{name} = %{version}-%{release}
 Provides:   %{name}-bin
 Obsoletes:  %{name}-bin
 
+
 %description tools
 Enlightenment DR17 file chunk reading/writing library  (tools)
 
-%package examples
-Summary:    Library for speedy data storage, retrieval, and compression. (tools)
-Group:      Development/Libraries
-Requires:   %{name} = %{version}-%{release}
-
-%description examples
-Enlightenment DR17 file chunk reading/writing library  (tools)
 
 %prep
 %setup -q
 
 
 %build
+export CFLAGS+=" -fvisibility=hidden -fPIC"
+export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed"
 
 %autogen --disable-static
 %configure --disable-static \
@@ -65,30 +61,38 @@ Enlightenment DR17 file chunk reading/writing library  (tools)
 
 make %{?jobs:-j%jobs}
 
+
 %install
 rm -rf %{buildroot}
 %make_install
 
 
-
-
 %post -p /sbin/ldconfig
+
 
 %postun -p /sbin/ldconfig
 
 
 %files
-%{_libdir}/*.so.*
+%defattr(-,root,root,-)
+%{_libdir}/libeet.so.*
 
 
 %files devel
+%defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/eet.pc
 
+
 %files tools
-/usr/bin/*
+%defattr(-,root,root,-)
+%{_bindir}/*
+%{_datadir}/eet/examples/eet-basic.c
+%{_datadir}/eet/examples/eet-data-cipher_decipher.c
+%{_datadir}/eet/examples/eet-data-file_descriptor_01.c
+%{_datadir}/eet/examples/eet-data-file_descriptor_02.c
+%{_datadir}/eet/examples/eet-data-nested.c
+%{_datadir}/eet/examples/eet-data-simple.c
+%{_datadir}/eet/examples/eet-file.c
 
-
-%files examples
-/usr/share/eet/examples/*

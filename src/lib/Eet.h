@@ -30,7 +30,7 @@
    Eet is extremely fast, small and simple. Eet files can be very small and
    highly compressed, making them very optimal for just sending across the
    internet without having to archive, compress or decompress and install them.
-   They allow for lightning-fast random-acess reads once created, making them
+   They allow for lightning-fast random-access reads once created, making them
    perfect for storing data that is written once (or rarely) and read many
    times, but the program does not want to have to read it all in at once.
 
@@ -209,7 +209,7 @@ extern "C" {
  * #endif
  * @endcode
  *
- * Note the #if check can be dropped if your program refuses to compile or
+ * Note the \#if check can be dropped if your program refuses to compile or
  * work with an Eet version less than 1.3.0.
  */
 typedef struct _Eet_Version
@@ -577,7 +577,7 @@ EAPI Eet_File_Mode
 eet_mode_get(Eet_File *ef);
 
 /**
- * Close an eet file handle and flush and writes pending.
+ * Close an eet file handle and flush pending writes.
  * @param ef A valid eet file handle.
  *
  * This function will flush any pending writes to disk if the eet file
@@ -643,6 +643,17 @@ eet_dictionary_get(Eet_File *ef);
 EAPI int
 eet_dictionary_string_check(Eet_Dictionary *ed,
                             const char *string);
+
+/**
+ * Return the number of strings inside a dictionary
+ * @param ed A valid dictionary handle
+ * @return the number of strings inside a dictionary
+ *
+ * @since 1.6.0
+ * @ingroup Eet_File_Group
+ */
+EAPI int
+eet_dictionary_count(const Eet_Dictionary *ed);
 
 /**
  * Read a specified entry from an eet file and return data
@@ -3143,6 +3154,38 @@ eet_data_descriptor_encode(Eet_Data_Descriptor *edd,
                                        sizeof(___ett.member) /                    \
                                        sizeof(___ett.member[0]),                  \
                                        NULL, NULL);                               \
+    } while(0)
+
+/**
+ * Add a variable array of basic data elements to a data descriptor.
+ * @param edd The data descriptor to add the type to.
+ * @param struct_type The type of the struct.
+ * @param name The string name to use to encode/decode this member
+ *        (must be a constant global and never change).
+ * @param member The struct member itself to be encoded.
+ * @param type The type of the member to encode.
+ *
+ * This macro lets you easily add a variable size array of basic data
+ * types. All the parameters are the same as for
+ * EET_DATA_DESCRIPTOR_ADD_BASIC(). This assumes you have
+ * a struct member (of type EET_T_INT) called member_count (note the
+ * _count appended to the member) that holds the number of items in
+ * the array. This array will be allocated separately to the struct it
+ * is in.
+ *
+ * @since 1.6.0
+ * @ingroup Eet_Data_Group
+ */
+#define EET_DATA_DESCRIPTOR_ADD_BASIC_VAR_ARRAY(edd, struct_type, name, member, type) \
+  do {                                                                                \
+       struct_type ___ett;                                                            \
+       eet_data_descriptor_element_add(edd, name, type, EET_G_VAR_ARRAY,              \
+                                       (char *)(& (___ett.member)) -                  \
+                                       (char *)(& (___ett)),                          \
+                                       (char *)(& (___ett.member ## _count)) -        \
+                                       (char *)(& (___ett)),                          \
+                                       NULL,                                          \
+                                       NULL);                                         \
     } while(0)
 
 /**

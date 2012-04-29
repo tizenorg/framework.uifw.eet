@@ -1,12 +1,12 @@
-y##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
+##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 m4_define([v_maj], [1])
-m4_define([v_min], [5])
-m4_define([v_mic], [99])
+m4_define([v_min], [6])
+m4_define([v_mic], [0])
 m4_define([v_rev], m4_esyscmd([(svnversion "${SVN_REPO_PATH:-.}" | grep -v '\(export\|Unversioned directory\)' || echo 0) | awk -F : '{printf("%s\n", $1);}' | tr -d ' :MSP\n']))
 m4_if(v_rev, [0], [m4_define([v_rev], m4_esyscmd([git log 2> /dev/null | (grep -m1 git-svn-id || echo 0) | sed -e 's/.*@\([0-9]*\).*/\1/' | tr -d '\n']))])
 ##--   When released, remove the dnl on the below line
-dnl m4_undefine([v_rev])
+m4_undefine([v_rev])
 ##--   When doing snapshots - change soname. remove dnl on below line
 dnl m4_define([relname], [ver-pre-svn-05])
 dnl m4_define([v_rel], [-release relname])
@@ -18,7 +18,7 @@ m4_define([lt_age], v_min)
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 
-AC_INIT([eet], [v_ver], [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([eet], [v_ver]-alpha, [enlightenment-devel@lists.sourceforge.net])
 AC_PREREQ([2.52])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -108,39 +108,6 @@ if test "x${old_eet_file_format}" = "xyes" ; then
    AC_DEFINE(EET_OLD_EET_FILE_FORMAT, 1, [support old eet file format])
 else
    AC_DEFINE(EET_OLD_EET_FILE_FORMAT, 0, [support old eet file format])
-fi
-
-# Gnutls support
-
-AC_ARG_ENABLE([gnutls],
-   [AC_HELP_STRING([--disable-gnutls], [disable gnutls eet support])],
-   [want_gnutls=$enableval]
-)
-AC_MSG_CHECKING([whether to use Gnutls])
-AC_MSG_RESULT([${want_gnutls}])
-
-# Specific GNUTLS improvement
-
-new_gnutls_api="yes"
-AC_ARG_ENABLE(new-gnutls-api,
-   [AC_HELP_STRING(
-      [--disable-new-gnutls-api],
-      [enable use of gnutls_x509_crt_verify_hash. [[default=enable]]]
-    )],
-   [new_gnutls_api=$enableval]
-)
-AC_MSG_CHECKING([whether to use gnutls_x509_crt_verify_hash])
-AC_MSG_RESULT([${new_gnutls_api}])
-
-if test "x${new_gnutls_api}" = "xyes" ; then
-   AC_CHECK_LIB(gnutls, gnutls_x509_crt_verify_hash,
-                [ new_gnutls_api="yes" ],
-		[ new_gnutls_api="no" ]
-		)
-
-   if test "x${new_gnutls_api}" = "xyes"; then
-      AC_DEFINE(EET_USE_NEW_GNUTLS_API, 1, [use gnutls_x509_crt_verify_hash])
-   fi
 fi
 
 # Openssl support
@@ -264,8 +231,30 @@ AC_SUBST(EET_LIBS)
 
 # Eina library
 
-PKG_CHECK_MODULES(EINA, [eina >= 1.1.0])
-requirement_eet="eina >= 1.1.0 ${requirement_eet}"
+PKG_CHECK_MODULES(EINA, [eina >= 1.2.0])
+requirement_eet="eina >= 1.2.0 ${requirement_eet}"
+
+### Checks for portability layer
+
+PKG_CHECK_MODULES([EXOTIC],
+   [exotic],
+   [enable_exotic="yes"],
+   [enable_exotic="no"])
+
+if test "x${enable_exotic}" = "xyes"; then
+    requirement_eet="exotic ${requirement_eet}"
+
+    AC_DEFINE([HAVE_EXOTIC_H], [1], [Define to 1 if you have Exotic.])
+fi
+
+# Gnutls support
+
+AC_ARG_ENABLE([gnutls],
+   [AC_HELP_STRING([--disable-gnutls], [disable gnutls eet support])],
+   [want_gnutls=$enableval]
+)
+AC_MSG_CHECKING([whether to use Gnutls])
+AC_MSG_RESULT([${want_gnutls}])
 
 # Gnutls library
 have_gnutls="no"
@@ -286,6 +275,76 @@ if test "x${want_gnutls}" = "xyes" || test "x${want_gnutls}" = "xauto" ; then
       fi
    fi
 fi
+
+# Specific GNUTLS improvement
+
+new_gnutls_api="yes"
+AC_ARG_ENABLE(new-gnutls-api,
+   [AC_HELP_STRING(
+      [--disable-new-gnutls-api],
+      [enable use of gnutls_x509_crt_verify_hash. [[default=enable]]]
+    )],
+   [new_gnutls_api=$enableval]
+)
+AC_MSG_CHECKING([whether to use gnutls_x509_crt_verify_hash])
+AC_MSG_RESULT([${new_gnutls_api}])
+
+if test "x${new_gnutls_api}" = "xyes" ; then
+   tmp_CFLAGS="${CFLAGS}"
+   tmp_LIBS="${LIBS}"
+   CFLAGS="${GNUTLS_CFLAGS}"
+   LIBS="${GNUTLS_LIBS}"
+   AC_CHECK_LIB(gnutls, gnutls_x509_crt_verify_hash,
+                [ new_gnutls_api="yes" ],
+		[ new_gnutls_api="no" ]
+		)
+   CFLAGS="${tmp_CFLAGS}"
+   LIBS="${tmp_LIBS}"
+
+   if test "x${new_gnutls_api}" = "xyes"; then
+      AC_DEFINE(EET_USE_NEW_GNUTLS_API, 1, [use gnutls_x509_crt_verify_hash])
+   fi
+fi
+
+use_gnutls_privkey_sign_data="no"
+if test "x${want_gnutls}" = "xyes" -o "x${want_gnutls}" = "xauto"; then
+   tmp_CFLAGS="${CFLAGS}"
+   tmp_LIBS="${LIBS}"
+   CFLAGS="${GNUTLS_CFLAGS}"
+   LIBS="${GNUTLS_LIBS}"
+   AC_CHECK_LIB(gnutls, gnutls_privkey_sign_data,
+   		[ use_gnutls_privkey_sign_data="yes" ],
+   		[ use_gnutls_privkey_sign_data="no" ]
+		)
+   CFLAGS="${tmp_CFLAGS}"
+   LIBS="${tmp_LIBS}"
+
+   if test "x${use_gnutls_privkey_sign_data}" = "xyes"; then
+      AC_DEFINE(EET_USE_NEW_PRIVKEY_SIGN_DATA, 1, [use gnutls_privkey_sign_data])
+   fi
+fi
+AC_MSG_CHECKING([whether to use gnutls_privkey_sign_data])
+AC_MSG_RESULT([${use_gnutls_privkey_sign_data}])
+
+use_gnutls_pubkey_verify_hash="no"
+if test "x${want_gnutls}" = "xyes" -o "x${want_gnutls}" = "xauto"; then
+   tmp_CFLAGS="${CFLAGS}"
+   tmp_LIBS="${LIBS}"
+   CFLAGS="${GNUTLS_CFLAGS}"
+   LIBS="${GNUTLS_LIBS}"
+   AC_CHECK_LIB(gnutls, gnutls_pubkey_verify_hash,
+   		[ use_gnutls_pubkey_verify_hash="yes" ],
+   		[ use_gnutls_pubkey_verify_hash="no" ]
+		)
+   CFLAGS="${tmp_CFLAGS}"
+   LIBS="${tmp_LIBS}"
+
+   if test "x${use_gnutls_pubkey_verify_hash}" = "xyes"; then
+      AC_DEFINE(EET_USE_NEW_PUBKEY_VERIFY_HASH, 1, [use gnutls_pubkey_verify_hash])
+   fi
+fi
+AC_MSG_CHECKING([whether to use gnutls_pubkey_verify_hash])
+AC_MSG_RESULT([${use_gnutls_pubkey_verify_hash}])
 
 # Openssl library
 have_openssl="no"

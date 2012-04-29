@@ -21,18 +21,6 @@
 #include "Eet.h"
 #include "Eet_private.h"
 
-#ifdef _WIN32
-# define FMT_CHAR       "%c"
-# define FMT_UCHAR      "%c"
-# define FMT_LONG_LONG  "%I64i"
-# define FMT_ULONG_LONG "%I64u"
-#else
-# define FMT_CHAR       "%hhi"
-# define FMT_UCHAR      "%hhu"
-# define FMT_LONG_LONG  "%lli"
-# define FMT_ULONG_LONG "%llu"
-#endif
-
 /*
  * routines for doing data -> struct and struct -> data conversion
  *
@@ -2126,7 +2114,7 @@ eet_data_write_cipher(Eet_File            *ef,
                       const char          *name,
                       const char          *cipher_key,
                       const void          *data,
-                      int                  compress)
+                      int                  comp)
 {
    Eet_Dictionary *ed;
    void *data_enc;
@@ -2139,7 +2127,7 @@ eet_data_write_cipher(Eet_File            *ef,
    if (!data_enc)
      return 0;
 
-   val = eet_write_cipher(ef, name, data_enc, size, compress, cipher_key);
+   val = eet_write_cipher(ef, name, data_enc, size, comp, cipher_key);
    free(data_enc);
    return val;
 }
@@ -2149,9 +2137,9 @@ eet_data_write(Eet_File            *ef,
                Eet_Data_Descriptor *edd,
                const char          *name,
                const void          *data,
-               int                  compress)
+               int                  comp)
 {
-   return eet_data_write_cipher(ef, edd, name, NULL, data, compress);
+   return eet_data_write_cipher(ef, edd, name, NULL, data, comp);
 }
 
 static void
@@ -3108,7 +3096,7 @@ _eet_data_dump_parse(Eet_Dictionary *ed,
                                             if      (!strcmp(tok3, "char:"))
                                               {
                                                  n->type = EET_T_CHAR;
-                                                 sscanf(tok4, FMT_CHAR,
+                                                 sscanf(tok4, "%hhi",
                                                         &(n->data.value.c));
                                               }
                                             else if (!strcmp(tok3, "short:"))
@@ -3126,7 +3114,7 @@ _eet_data_dump_parse(Eet_Dictionary *ed,
                                             else if (!strcmp(tok3, "long_long:"))
                                               {
                                                  n->type = EET_T_LONG_LONG;
-                                                 sscanf(tok4, FMT_LONG_LONG,
+                                                 sscanf(tok4, "%lli",
                                                         &(n->data.value.l));
                                               }
                                             else if (!strcmp(tok3, "float:"))
@@ -3144,7 +3132,7 @@ _eet_data_dump_parse(Eet_Dictionary *ed,
                                             else if (!strcmp(tok3, "uchar:"))
                                               {
                                                  n->type = EET_T_UCHAR;
-                                                 sscanf(tok4, FMT_UCHAR,
+                                                 sscanf(tok4, "%hhu",
                                                         &(n->data.value.uc));
                                               }
                                             else if (!strcmp(tok3, "ushort:"))
@@ -3162,7 +3150,7 @@ _eet_data_dump_parse(Eet_Dictionary *ed,
                                             else if (!strcmp(tok3, "ulong_long:"))
                                               {
                                                  n->type = EET_T_ULONG_LONG;
-                                                 sscanf(tok4, FMT_ULONG_LONG,
+                                                 sscanf(tok4, "%llu",
                                                         &(n->data.value.ul));
                                               }
                                             else if (!strcmp(tok3, "string:"))
@@ -4682,7 +4670,7 @@ eet_data_undump_cipher(Eet_File   *ef,
                        const char *cipher_key,
                        const char *text,
                        int         textlen,
-                       int         compress)
+                       int         comp)
 {
    Eet_Dictionary *ed;
    void *data_enc;
@@ -4695,7 +4683,7 @@ eet_data_undump_cipher(Eet_File   *ef,
    if (!data_enc)
      return 0;
 
-   val = eet_write_cipher(ef, name, data_enc, size, compress, cipher_key);
+   val = eet_write_cipher(ef, name, data_enc, size, comp, cipher_key);
    free(data_enc);
    return val;
 }
@@ -4705,9 +4693,9 @@ eet_data_undump(Eet_File   *ef,
                 const char *name,
                 const char *text,
                 int         textlen,
-                int         compress)
+                int         comp)
 {
-   return eet_data_undump_cipher(ef, name, NULL, text, textlen, compress);
+   return eet_data_undump_cipher(ef, name, NULL, text, textlen, comp);
 }
 
 EAPI void *
@@ -4856,7 +4844,7 @@ eet_data_node_write_cipher(Eet_File   *ef,
                            const char *name,
                            const char *cipher_key,
                            Eet_Node   *node,
-                           int         compress)
+                           int         comp)
 {
    Eet_Dictionary *ed;
    void *data_enc;
@@ -4869,7 +4857,7 @@ eet_data_node_write_cipher(Eet_File   *ef,
    if (!data_enc)
      return 0;
 
-   val = eet_write_cipher(ef, name, data_enc, size, compress, cipher_key);
+   val = eet_write_cipher(ef, name, data_enc, size, comp, cipher_key);
    free(data_enc);
    return val;
 }
@@ -4996,4 +4984,3 @@ eet_data_xattr_cipher_set(const char          *filename,
 
    return ret;
 }
-
