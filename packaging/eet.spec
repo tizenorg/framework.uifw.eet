@@ -6,6 +6,7 @@ Group:      System/Libraries
 License:    BSD
 URL:        http://www.enlightenment.org/
 Source0:    %{name}-%{version}.tar.gz
+Source1001: packaging/eet.manifest 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(eina)
@@ -52,6 +53,7 @@ Enlightenment DR17 file chunk reading/writing library  (tools)
 
 
 %build
+cp %{SOURCE1001} .
 export CFLAGS+=" -fvisibility=hidden -fPIC"
 export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed"
 
@@ -74,11 +76,13 @@ rm -rf %{buildroot}
 
 
 %files
+%manifest eet.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libeet.so.*
 
 
 %files devel
+%manifest eet.manifest
 %defattr(-,root,root,-)
 %{_includedir}/*
 %{_libdir}/*.so
@@ -86,6 +90,7 @@ rm -rf %{buildroot}
 
 
 %files tools
+%manifest eet.manifest
 %defattr(-,root,root,-)
 %{_bindir}/*
 %{_datadir}/eet/examples/eet-basic.c
