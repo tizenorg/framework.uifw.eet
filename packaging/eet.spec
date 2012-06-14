@@ -1,17 +1,16 @@
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
 Version:    1.6.0+svn.70375slp2+build02
-Release:    1
+Release:    2
 Group:      System/Libraries
 License:    BSD
 URL:        http://www.enlightenment.org/
 Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-BuildRequires:  pkgconfig(eina)
-BuildRequires:  pkgconfig(gnutls)
-BuildRequires:  pkgconfig(openssl)
-BuildRequires:  pkgconfig(zlib)
+BuildRequires:  eina-devel
+BuildRequires:  gnutls-devel
+BuildRequires:  zlib-devel
 BuildRequires:  libjpeg-devel
 
 
