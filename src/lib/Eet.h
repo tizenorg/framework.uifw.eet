@@ -5,7 +5,7 @@
 
    @mainpage Eet Library Documentation
 
-   @version 1.5.0
+   @version 1.6.0
    @date 2000-2012
 
    Please see the @ref authors page for contact details.
@@ -256,6 +256,39 @@ typedef enum _Eet_Error
    EET_ERROR_DECRYPT_FAILED /**< Could not decrypt contents */
 } Eet_Error; /**< Eet error identifiers */
 
+/**
+ * @}
+ */
+   
+/**
+ * @defgroup Eet_Compression Eet Compression Levels
+ * Compression modes/levels supported by Eet.
+ *
+ * @{
+ */
+
+/**
+ * @enum _Eet_Compression
+ * All the compression modes known by Eet.
+ */
+
+typedef enum _Eet_Compression
+{
+   EET_COMPRESSION_NONE      = 0,  /**< No compression at all @since 1.7 */
+   EET_COMPRESSION_DEFAULT   = 1,  /**< Default compression (Zlib) @since 1.7 */
+   EET_COMPRESSION_LOW       = 2,  /**< Fast but minimal compression (Zlib) @since 1.7 */
+   EET_COMPRESSION_MED       = 6,  /**< Medium compression level (Zlib) @since 1.7 */
+   EET_COMPRESSION_HI        = 9,  /**< Slow but high compression level (Zlib) @since 1.7 */
+   EET_COMPRESSION_VERYFAST  = 10, /**< Very fast, but lower compression ratio (LZ4HC) @since 1.7 */
+   EET_COMPRESSION_SUPERFAST = 11, /**< Very fast, but lower compression ratio (faster to compress than EET_COMPRESSION_VERYFAST)  (LZ4) @since 1.7 */
+     
+   EET_COMPRESSION_LOW2      = 3,  /**< Space filler for compatibility. Don't use it @since 1.7 */
+   EET_COMPRESSION_MED1      = 4,  /**< Space filler for compatibility. Don't use it @since 1.7 */
+   EET_COMPRESSION_MED2      = 5,  /**< Space filler for compatibility. Don't use it @since 1.7 */
+   EET_COMPRESSION_HI1       = 7,  /**< Space filler for compatibility. Don't use it @since 1.7 */
+   EET_COMPRESSION_HI2       = 8   /**< Space filler for compatibility. Don't use it @since 1.7 */
+} Eet_Compression; /**< Eet compression modes @since 1.7 */
+   
 /**
  * @}
  */

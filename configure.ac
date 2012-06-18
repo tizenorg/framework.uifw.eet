@@ -2,11 +2,11 @@
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 m4_define([v_maj], [1])
 m4_define([v_min], [6])
-m4_define([v_mic], [0])
+m4_define([v_mic], [99])
 m4_define([v_rev], m4_esyscmd([(svnversion "${SVN_REPO_PATH:-.}" | grep -v '\(export\|Unversioned directory\)' || echo 0) | awk -F : '{printf("%s\n", $1);}' | tr -d ' :MSP\n']))
 m4_if(v_rev, [0], [m4_define([v_rev], m4_esyscmd([git log 2> /dev/null | (grep -m1 git-svn-id || echo 0) | sed -e 's/.*@\([0-9]*\).*/\1/' | tr -d '\n']))])
 ##--   When released, remove the dnl on the below line
-m4_undefine([v_rev])
+dnl m4_undefine([v_rev])
 ##--   When doing snapshots - change soname. remove dnl on below line
 dnl m4_define([relname], [ver-pre-svn-05])
 dnl m4_define([v_rel], [-release relname])
@@ -18,7 +18,7 @@ m4_define([lt_age], v_min)
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 ##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##--##
 
-AC_INIT([eet], [v_ver]-beta, [enlightenment-devel@lists.sourceforge.net])
+AC_INIT([eet], [v_ver], [enlightenment-devel@lists.sourceforge.net])
 AC_PREREQ([2.52])
 AC_CONFIG_SRCDIR([configure.ac])
 AC_CONFIG_MACRO_DIR([m4])
@@ -71,23 +71,6 @@ want_cipher="yes"
 want_signature="yes"
 
 requirement_eet=""
-
-
-### Additional options to configure
-
-# Amalgamation
-
-AC_ARG_ENABLE([amalgamation],
-   [AC_HELP_STRING([--enable-amalgamation], [enable generation of one single file with all source code in it, helps compiler optimizations.])],
-   [if test "x${enableval}" = "xyes"; then
-       do_amalgamation="yes"
-    else
-       do_amalgamation="no"
-    fi
-   ],
-   [do_amalgamation="no"]
-)
-AM_CONDITIONAL(EET_AMALGAMATION, test "x${do_amalgamation}" = "xyes")
 
 EFL_ENABLE_BIN([eet])
 
@@ -516,7 +499,6 @@ echo "------------------------------------------------------------------------"
 echo
 echo "Configuration Options Summary:"
 echo
-echo "  Amalgamation.........: ${do_amalgamation}"
 echo "  Secure layer.........: ${secure_layer}"
 if test "x${have_gnutls}" = "xyes" || test "x${have_openssl}" = "xyes" ; then
    echo "    Cipher support.....: ${have_cipher}"
@@ -535,9 +517,7 @@ if test "x${build_doc}" = "xyes" ; then
    echo "    Building...........: make doc"
 fi
 echo "  Examples.............: ${build_examples}"
-if test "x${build_examples}" = "xyes" ; then
-   echo "    Install............: ${install_examples}"
-fi
+echo "  Examples installed...: ${install_examples}"
 echo
 echo "Compilation............: make (or gmake)"
 echo "  CPPFLAGS.............: $CPPFLAGS"

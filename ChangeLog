@@ -579,3 +579,22 @@
 	* Added a new macro for adding variable arrays of basic types.
 	   EET_DATA_DESCRIPTOR_ADD_BASIC_VAR_ARRAY
 
+2012-04-26 Carsten Haitzler (The Rasterman)
+
+        1.6.0 release
+
+2012-05-11  Cedric Bail
+
+	* Force destruction of all pending file when shuting down eet.
+
+2012-05-14  Carsten Haitzler (The Rasterman)
+
+        * Add LZ4/LZ4HC compression & decompression capabilities
+
+2012-05-15  Cedric Bail
+
+	* Make eet_dictionary thread safe.
+
+2012-05-30  Cedric Bail
+
+	* Check that gnutls and openssl don't return below zero size during decipher.
