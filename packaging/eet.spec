@@ -1,7 +1,7 @@
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.6.0+svn.70375slp2+build02
-Release:    2
+Version:    1.6.0+svn.72253slp2+build01
+Release:    1
 Group:      System/Libraries
 License:    BSD
 URL:        http://www.enlightenment.org/
