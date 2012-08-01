@@ -3,11 +3,15 @@ Eet 1.7.0
 Changes since Eet 1.6.0:
 --------------------------
 
+Additions:
+    * Add code to detect overrun and underrun during Eet Data Descriptor setup.
+
 Fixes:
     * Force destruction of all pending file when shuting down eet.
     * Make eet_dictionary thread safe.
     * Check that gnutls and openssl don't return below zero size during decipher.
     * Fix crash when cyphering huge amount of data.
+    * Possible wrong size decoding of simple type.
 
 Eet 1.6.0
 
