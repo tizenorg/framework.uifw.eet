@@ -4,30 +4,39 @@ MAINTAINERCLEANFILES = Makefile.in
 AM_CPPFLAGS = \
 -I. \
 -I$(top_srcdir)/src/lib \
+-I$(top_srcdir)/src/lib/lz4 \
+-I$(top_builddir)/src/lib \
 -DPACKAGE_BIN_DIR=\"$(bindir)\" \
 -DPACKAGE_LIB_DIR=\"$(libdir)\" \
 -DPACKAGE_DATA_DIR=\"$(datadir)/$(PACKAGE)\" \
-@EVIL_CFLAGS@ \
-@COVERAGE_CFLAGS@
+@EET_CFLAGS@ \
+@EFL_EET_BUILD@
 
-include_HEADERS = Eet.h
+includes_HEADERS = Eet.h
+includesdir = $(includedir)/eet-@VMAJ@
 
 lib_LTLIBRARIES = libeet.la
 
-libeet_la_SOURCES  = \
-eet_lib.c \
+libeet_la_SOURCES = \
+Eet_private.h \
+eet_alloc.c \
+eet_cipher.c \
+eet_connection.c \
 eet_data.c \
-eet_image.c \
-eet_memfile.c \
 eet_dictionary.c \
-eet_utils.c
+eet_image.c \
+eet_lib.c \
+eet_node.c \
+eet_utils.c \
+lz4/lz4.c \
+lz4/lz4.h \
+lz4/lz4hc.c \
+lz4/lz4hc.h
 
-libeet_la_CFLAGS = @WIN32_CFLAGS@
-libeet_la_LIBADD = @COVERAGE_LIBS@ @EVIL_LIBS@ @WIN32_LIBS@ -lz -ljpeg @fnmatch_libs@ -lm
-libeet_la_LDFLAGS = @lt_no_undefined@ @lt_enable_auto_import@ -version-info @version_info@
-libeet_la_DEPENDENCIES = $(top_builddir)/config.h
+libeet_la_LIBADD = @EET_LIBS@ -lm
+libeet_la_LDFLAGS = -no-undefined @lt_enable_auto_import@ -version-info @version_info@ @release_info@
 
-EXTRA_DIST = Eet_private.h
+EXTRA_DIST = lz4/README
 
 clean-local:
-	@rm -rf *.gcno
+	@rm -rf *.gcno eet_amalgamation.c
