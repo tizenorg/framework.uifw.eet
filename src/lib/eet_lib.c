@@ -1721,6 +1721,8 @@ eet_read_cipher(Eet_File   *ef,
           {
              size = efn->size;
              data = realloc(data, efn->size);
+             if (!data)
+               goto on_error;
           }
 
         if (efn->data)
