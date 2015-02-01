@@ -1,15 +1,14 @@
 Name:       eet
 Summary:    Library for speedy data storage, retrieval, and compression
-Version:    1.7.1+svn.77495+build02
+Version:    1.7.1+svn.77495+build14
 Release:    1
 Group:      System/Libraries
-License:    BSD
+License:    BSD 2-Clause
 URL:        http://www.enlightenment.org/
 Source0:    %{name}-%{version}.tar.gz
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  eina-devel
-BuildRequires:  gnutls-devel
 BuildRequires:  zlib-devel
 BuildRequires:  libjpeg-devel
 
@@ -51,20 +50,22 @@ Enlightenment DR17 file chunk reading/writing library  (tools)
 
 
 %build
-export CFLAGS+=" -fvisibility=hidden -fPIC"
+export CFLAGS+=" -fvisibility=hidden -fPIC -Wall"
 export LDFLAGS+=" -fvisibility=hidden -Wl,--hash-style=both -Wl,--as-needed"
 
-
-cd %{_repository} && %autogen --disable-static --disable-openssl --disable-cypher --disable-signature --disable-gnutls
+%autogen --disable-static \
+         --disable-openssl \
+         --disable-signature \
+         --disable-gnutls
 
 make %{?jobs:-j%jobs}
 
 
 %install
-rm -rf %{buildroot}
-cd %{_repository} && %make_install
-mkdir -p %{buildroot}/usr/share/license
-cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
+%make_install
+mkdir -p %{buildroot}/%{_datadir}/license
+cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/%{_datadir}/license/%{name}
+cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/%{_datadir}/license/%{name}-tools
 
 
 %post -p /sbin/ldconfig
@@ -76,8 +77,8 @@ cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
 %files
 %defattr(-,root,root,-)
 %{_libdir}/libeet.so.*
+%{_datadir}/license/%{name}
 %manifest %{name}.manifest
-/usr/share/license/%{name}
 
 
 %files devel
@@ -85,11 +86,6 @@ cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
 %{_includedir}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/eet.pc
-
-
-%files tools
-%defattr(-,root,root,-)
-%{_bindir}/*
 %{_datadir}/eet/examples/eet-basic.c
 %{_datadir}/eet/examples/eet-data-cipher_decipher.c
 %{_datadir}/eet/examples/eet-data-file_descriptor_01.c
@@ -98,3 +94,9 @@ cp %{_builddir}/%{buildsubdir}/COPYING %{buildroot}/usr/share/license/%{name}
 %{_datadir}/eet/examples/eet-data-simple.c
 %{_datadir}/eet/examples/eet-file.c
 
+
+%files tools
+%defattr(-,root,root,-)
+%{_bindir}/*
+%{_datadir}/license/%{name}-tools
+%manifest %{name}-tools.manifest
