@@ -607,3 +607,54 @@
 
 	* Add code to detect overrun and underrun in eet_data_descriptor_element_add.
 	* Fix possible wrong size decoding for simple type.
+
+2012-08-09  Cedric Bail
+
+	* Don't copy string around for nothing.
+
+2012-08-22 Igor Murzov (GArik_)
+
+	* Fixed memory leak of eet_data_chunk_put().
+
+2012-08-24  Cedric Bail
+
+	* Add eet_connection_empty.
+
+2012-08-26  Cedric Bail
+
+	* Correctly initialize dictionary correctly.
+
+2012-08-30  Carsten Haitzler (The Rasterman)
+
+        1.7.0 release
+
+2012-09-21  Carsten Haitzler (The Rasterman)
+
+        * Fix big endian bug with eet image handling and endianess swapping.
+
+2012-09-27 Patryk Kaczmarek <patryk.k@samsung.com>
+
+        * Add eet file handle null checks to eet_data_write_cipher(),
+        eet_data_descriptor_decode_cipher(),
+        eet_data_descriptor_encode_cipher(), eet_data_xattr_cipher_get(),
+        eet_data_xattr_cipher_set().
+
+2012-10-04  Vincent Torri
+
+		* Update lz4 code to rev. 77. This fix compilation on NetBSD 5.0
+	
+2012-10-20 Cedric Bail
+
+		1.7.1 release
+
+2012-11-14  Michal Jagiello
+
+		*  Add missing UNLOCK_CACHE in eet_open function.
+
+2012-12-11  Cedric Bail
+
+	* Fix leak eet_pbkdf2_sha1 with OpenSSL.
+
+2012-12-12  Daniel Willmann
+
+	* Fix possible buffer overflow in functions relying on EET_T_LAST.

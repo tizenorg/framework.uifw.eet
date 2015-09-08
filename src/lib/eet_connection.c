@@ -170,6 +170,12 @@ _eet_connection_raw_send(Eet_Connection *conn,
 }
 
 EAPI Eina_Bool
+eet_connection_empty(Eet_Connection *conn)
+{
+   return conn->size ? EINA_FALSE : EINA_TRUE;
+}
+
+EAPI Eina_Bool
 eet_connection_send(Eet_Connection      *conn,
                     Eet_Data_Descriptor *edd,
                     const void          *data_in,
@@ -178,6 +184,8 @@ eet_connection_send(Eet_Connection      *conn,
    void *flat_data;
    int data_size;
    Eina_Bool ret = EINA_FALSE;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(conn, EINA_FALSE);
 
    flat_data = eet_data_descriptor_encode_cipher(edd,
                                                  data_in,
@@ -197,6 +205,8 @@ eet_connection_node_send(Eet_Connection *conn,
    void *data;
    int data_size;
    Eina_Bool ret = EINA_FALSE;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(conn, EINA_FALSE);
 
    data = eet_data_node_encode_cipher(node, cipher_key, &data_size);
    if (!data) return EINA_FALSE;

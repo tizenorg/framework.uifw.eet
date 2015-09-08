@@ -675,6 +675,19 @@ eet_shutdown(void)
    eina_lock_free(&eet_cache_lock);
 
 #ifdef HAVE_GNUTLS
+   /* Note that gnutls has a leak where it doesnt free stuff it alloced
+    * on init. valgrind trace here:
+    * 21 bytes in 1 blocks are definitely lost in loss record 24 of 194
+    *    at 0x4C2B6CD: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+    *    by 0x68AC801: strdup (strdup.c:43)
+    *    by 0xD215B6A: p11_kit_registered_module_to_name (in /usr/lib/x86_64-linux-gnu/libp11-kit.so.0.0.0)
+    *    by 0x9571574: gnutls_pkcs11_init (in /usr/lib/x86_64-linux-gnu/libgnutls.so.26.21.8)
+    *    by 0x955B031: gnutls_global_init (in /usr/lib/x86_64-linux-gnu/libgnutls.so.26.21.8)
+    *    by 0x6DFD6D0: eet_init (eet_lib.c:608)
+    * 
+    * yes - i've tried calling gnutls_pkcs11_deinit() by hand but no luck.
+    * the leak is in there.
+    */
    gnutls_global_deinit();
 #endif /* ifdef HAVE_GNUTLS */
 #ifdef HAVE_OPENSSL
@@ -937,7 +950,7 @@ eet_internal_read2(Eet_File *ef)
                            ef))
           return NULL;
 
-        ef->ed = eet_dictionary_calloc(1);
+        ef->ed = eet_dictionary_add();
         if (eet_test_close(!ef->ed, ef))
           return NULL;
 
@@ -1474,7 +1487,10 @@ open_error:
    else
      {
         if (mode != EET_FILE_MODE_WRITE)
-          return NULL;
+          {
+            UNLOCK_CACHE;
+            return NULL;
+          }
 
         size = 0;
 
@@ -1582,6 +1598,9 @@ EAPI const void *
 eet_identity_x509(Eet_File *ef,
                   int      *der_length)
 {
+   if (eet_check_pointer(ef))
+     return NULL;
+
    if (!ef->x509_der)
      return NULL;
 
@@ -1595,6 +1614,9 @@ EAPI const void *
 eet_identity_signature(Eet_File *ef,
                        int      *signature_length)
 {
+   if (eet_check_pointer(ef))
+     return NULL;
+
    if (!ef->signature)
      return NULL;
 
@@ -1608,6 +1630,9 @@ EAPI const void *
 eet_identity_sha1(Eet_File *ef,
                   int      *sha1_length)
 {
+   if (eet_check_pointer(ef))
+     return NULL;
+
    if (!ef->sha1)
      ef->sha1 = eet_identity_compute_sha1(ef->data,
                                           ef->data_size,
@@ -2032,7 +2057,10 @@ eet_alias_get(Eet_File   *ef,
           }
         
         if (tmp[compr_size - 1] != '\0')
-          goto on_error;
+          {
+             free(tmp);
+             goto on_error;
+          }
 
         UNLOCK_FILE(ef);
 

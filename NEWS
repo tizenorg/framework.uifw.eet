@@ -1,10 +1,38 @@
-Eet 1.7.0
+Eet 1.7.4
+
+Changes since Eet 1.7.3:
+--------------------------
+
+Fixes:
+    * Fix memory leak when using OpenSSL for ciphering long data.
+    * Fix possible buffer overflow in functions relying on EET_T_LAST
+
+Eet 1.7.3
+
+Changes since Eet 1.7.2:
+--------------------------
+
+Fixes:
+    * Updated lz4 code.
+
+Changes since Eet 1.7.1:
+--------------------------
+
+Fixes:
+    * Add missing UNLOCK_CACHE in eet_open function
+
+Changes since Eet 1.7.0:
+--------------------------
+
+Fixes:
+    * Fix PPC (big endian) image codec bug.
 
 Changes since Eet 1.6.0:
 --------------------------
 
 Additions:
     * Add code to detect overrun and underrun during Eet Data Descriptor setup.
+    * Add eet_connection_empty.
 
 Fixes:
     * Force destruction of all pending file when shuting down eet.
@@ -12,6 +40,9 @@ Fixes:
     * Check that gnutls and openssl don't return below zero size during decipher.
     * Fix crash when cyphering huge amount of data.
     * Possible wrong size decoding of simple type.
+    * Don't strdup string around for nothing.
+    * Always initialize dictionary correctly.
+    * Fixed memory leak of eet_data_chunk_put().
 
 Eet 1.6.0
 

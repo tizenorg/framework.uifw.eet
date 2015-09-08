@@ -1,5 +1,6 @@
 /**
- * @page Examples Examples
+ * @internal
+ * @page eet_examples EET Examples
  *
  * Here is a page with examples.
  *
@@ -12,18 +13,10 @@
  * @ref Example_Eet_Data_File_Descriptor_02
  *
  * @ref Example_Eet_Data_Cipher_Decipher
- *
- * <a href="examples.html">List of examples</a>
  */
 
 /**
- * @page Example_Eet_Basic Very basic Eet example
- *
- * @includelineno eet-basic.c
- * @example eet-basic.c
- */
-
-/**
+ * @internal
  * @page Example_Eet_File Example of the various ways to interface with an Eet File
  *
  * @includelineno eet-file.c
@@ -31,6 +24,7 @@
  */
 
 /**
+ * @internal
  * @page Example_Eet_Data_Simple Simple data example
  *
  * @includelineno eet-data-simple.c
@@ -38,6 +32,7 @@
  */
 
 /**
+ * @internal
  * @page Example_Eet_Data_Nested Nested data example
  *
  * @includelineno eet-data-nested.c
@@ -45,13 +40,14 @@
  */
 
 /**
+ * @internal
  * @page Example_Eet_Data_File_Descriptor_01 File descriptor data example
  *
  * @includelineno eet-data-file_descriptor_01.c
  * @example eet-data-file_descriptor_01.c
  */
-
 /**
+ * @internal
  * @page Example_Eet_Data_File_Descriptor_02 File descriptor data example, with Eet unions and variants
  *
  * This is an example much like the one shown in @ref
@@ -142,10 +138,10 @@
  * check for him/herself. The complete code of the example follows.
  *
  * @includelineno eet-data-file_descriptor_02.c
- * @example eet-data-file_descriptor_02.c
  */
 
 /**
+ * @internal
  * @page Example_Eet_Data_Cipher_Decipher Eet data cipher/decipher example
  *
  * In this example, we exemplify the usage of eet_write_cipher() and
@@ -180,5 +176,4 @@
  * code of the example follows.
  *
  * @includelineno eet-data-cipher_decipher.c
- * @example eet-data-cipher_decipher.c
  */

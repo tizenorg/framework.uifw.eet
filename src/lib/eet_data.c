@@ -110,7 +110,7 @@ struct _Eet_Data_Group_Type_Codec
 
 struct _Eet_Data_Chunk
 {
-   char         *name;
+   const char   *name;
    int           len;
    int           size;
    int           hash;
@@ -1422,7 +1422,7 @@ eet_data_chunk_new(void       *data,
        || type == EET_T_F8P24)
      type = EET_T_DOUBLE;
 
-   chnk->name = strdup(name);
+   chnk->name = name;
    chnk->len = strlen(name) + 1;
    chnk->size = size;
    chnk->data = data;
@@ -1434,9 +1434,6 @@ eet_data_chunk_new(void       *data,
 static inline void
 eet_data_chunk_free(Eet_Data_Chunk *chnk)
 {
-   if (chnk->name)
-     free(chnk->name);
-
    free(chnk);
 }
 
@@ -1563,9 +1560,9 @@ case EET_T_ ## Type: type += EET_I_ ## Type; break;
    if (chnk->data)
      eet_data_stream_write(ds, chnk->data, chnk->size);
 
-   free(string);
-on_error:
    free(size);
+on_error:
+   free(string);
 }
 
 /*---*/
@@ -1624,7 +1621,7 @@ _eet_descriptor_hash_free(Eet_Data_Descriptor *edd)
 
 static Eet_Data_Element *
 _eet_descriptor_hash_find(Eet_Data_Descriptor *edd,
-                          char                *name,
+                          const char          *name,
                           int                  hash)
 {
    Eet_Data_Descriptor_Hash *bucket;
@@ -1946,6 +1943,8 @@ eet_data_descriptor_element_add(Eet_Data_Descriptor *edd,
    Eet_Data_Element *ede;
    Eet_Data_Element *tmp;
 
+   EINA_SAFETY_ON_NULL_RETURN(edd);
+
    /* Sanity check to avoid crash later at runtime */
    if (type < EET_T_UNKNOW ||
        type >= EET_T_LAST)
@@ -1973,7 +1972,7 @@ eet_data_descriptor_element_add(Eet_Data_Descriptor *edd,
      }
    else if ((offset + sizeof (void*)) > (unsigned int) edd->size)
      {
-        CRIT("Preventing later buffer overrun : offset = %i, estimated size = %i in a structure of %i bytes", offset, sizeof (void*), edd->size);
+        CRIT("Preventing later buffer overrun : offset = %i, estimated size = %zu in a structure of %i bytes", offset, sizeof (void*), edd->size);
         return ;
      }
 
@@ -2151,6 +2150,8 @@ eet_data_write_cipher(Eet_File            *ef,
    void *data_enc;
    int size;
    int val;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(edd, 0);
 
    ed = eet_dictionary_get(ef);
 
@@ -2585,6 +2586,7 @@ _eet_data_dump_token_get(const char *src,
    char *tok = NULL;
    int in_token = 0;
    int in_quote = 0;
+   int in_escape = 0;
    int tlen = 0, tsize = 0;
 
 #define TOK_ADD(x)                     \
@@ -2602,25 +2604,32 @@ _eet_data_dump_token_get(const char *src,
      {
         if (in_token)
           {
-             if (in_quote)
+             if (in_escape)
                {
-                  if ((p[0] == '\"') && (p > src) && (p[-1] != '\\'))
+                  switch (p[0]) {
+                   case 'n':
+                      TOK_ADD('\n');
+                      break;
+                   case '"':
+                   case '\'':
+                   case '\\':
+                      TOK_ADD(p[0]);
+                      break;
+                   default:
+                      ERR("Unknow escape character %#x (%c). Append as is",
+                          p[0], p[0]);
+                      TOK_ADD(p[0]);
+                  }
+                  in_escape = 0;
+               }
+             else if (p[0] == '\\')
+               {
+                  in_escape = 1;
+               }
+             else if (in_quote)
+               {
+                  if (p[0] == '\"')
                     in_quote = 0;
-                  else if ((p[0] == '\\') && (*len > 1) &&
-                           (p[1] == '\"'))
-                    {
-/* skip */
-                    }
-                  else if ((p[0] == '\\') && (p > src) && (p[-1] == '\\'))
-                    {
-/* skip */
-                    }
-                  else if ((p[0] == '\\') && (*len > 1) && (p[1] == 'n'))
-                    {
-/* skip */
-                    }
-                  else if ((p[0] == 'n') && (p > src) && (p[-1] == '\\'))
-                    TOK_ADD('\n');
                   else
                     TOK_ADD(p[0]);
                }
@@ -2882,8 +2891,15 @@ _eet_data_dump_encode(int             parent_type,
                              node->type);
           }
         else
-          /* A Hash without key will not decode correctly. */
-          return NULL;
+          {
+             /* A Hash without key will not decode correctly. */
+
+             ds->data = NULL;
+             ds->size = 0;
+             eet_data_stream_free(ds);
+
+             return NULL;
+          }
 
         for (n = node->values; n; n = n->next)
           {
@@ -4740,6 +4756,8 @@ eet_data_descriptor_decode_cipher(Eet_Data_Descriptor *edd,
    Eet_Free_Context context;
    unsigned int deciphered_len = size_in;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(edd, NULL);
+
    if (cipher_key && data_in)
      if (eet_decipher(data_in, size_in, cipher_key,
                       strlen(cipher_key), &deciphered, &deciphered_len))
@@ -4941,6 +4959,8 @@ eet_data_descriptor_encode_cipher(Eet_Data_Descriptor *edd,
    unsigned int ciphered_len = 0;
    int size;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(edd, NULL);
+
    ret = _eet_data_descriptor_encode(NULL, edd, data_in, &size);
    if (cipher_key && ret)
      {
@@ -4986,6 +5006,8 @@ eet_data_xattr_cipher_get(const char          *filename,
    void *ret;
    ssize_t size;
 
+   EINA_SAFETY_ON_NULL_RETURN_VAL(edd, NULL);
+
    blob = eina_xattr_get(filename, attribute, &size);
    if (!blob) return NULL;
 
@@ -5006,6 +5028,8 @@ eet_data_xattr_cipher_set(const char          *filename,
    void *blob;
    int size;
    Eina_Bool ret;
+
+   EINA_SAFETY_ON_NULL_RETURN_VAL(edd, EINA_FALSE);
 
    blob = eet_data_descriptor_encode_cipher(edd, data, cipher_key, &size);
    if (!blob) return EINA_FALSE;

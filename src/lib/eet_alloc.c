@@ -21,11 +21,13 @@ struct _Eet_Mempool
   TYPE *                                                                \
   Type##_malloc(unsigned int num)                                       \
   {                                                                     \
+     if (!Type##_mp.mp) return NULL;                                    \
      return eina_mempool_malloc(Type##_mp.mp, num * sizeof (TYPE));     \
   }                                                                     \
   TYPE *                                                                \
   Type##_calloc(unsigned int num)                                       \
   {                                                                     \
+     if (!Type##_mp.mp) return NULL;                                    \
      return eina_mempool_calloc(Type##_mp.mp, num * sizeof (TYPE));     \
   }                                                                     \
   void                                                                  \
@@ -64,7 +66,7 @@ eet_mempool_init(void)
         mempool_array[i]->mp = eina_mempool_add(choice, mempool_array[i]->name, NULL, mempool_array[i]->size, 16);
         if (!mempool_array[i]->mp)
           {
-             if (!strcmp(choice, "pass_through"))
+             if (!(!strcmp(choice, "pass_through")))
                {
                   ERR("Falling back to pass through ! Previously tried '%s' mempool.", choice);
                   choice = "pass_through";

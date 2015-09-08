@@ -5,6 +5,7 @@ AM_CPPFLAGS = \
 -I. \
 -I$(top_srcdir)/src/lib \
 -I$(top_srcdir)/src/lib/lz4 \
+-I$(top_srcdir)/src/lib/rg_etc \
 -I$(top_builddir)/src/lib \
 -DPACKAGE_BIN_DIR=\"$(bindir)\" \
 -DPACKAGE_LIB_DIR=\"$(libdir)\" \
@@ -31,7 +32,11 @@ eet_utils.c \
 lz4/lz4.c \
 lz4/lz4.h \
 lz4/lz4hc.c \
-lz4/lz4hc.h
+lz4/lz4hc.h \
+rg_etc/rg_etc1.c \
+rg_etc/rg_etc2.c \
+rg_etc/etc2_encoder.c \
+rg_etc/rg_etc1.h
 
 libeet_la_LIBADD = @EET_LIBS@ -lm
 libeet_la_LDFLAGS = -no-undefined @lt_enable_auto_import@ -version-info @version_info@ @release_info@
